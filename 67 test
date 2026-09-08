@@ -1,0 +1,805 @@
+local version = LRM_ScriptVersion and "v" .. table.concat(LRM_ScriptVersion:split(""), ".") or "Dev Version"
+
+local WindUI
+local success, err = pcall(function()
+    WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+end)
+
+if not success then
+    success, err = pcall(function()
+        WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+    end)
+end
+
+if not success or not WindUI then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Galaxies Hub Error",
+        Text = "Failed to load UI. Please try again.",
+        Duration = 5
+    })
+    error("Failed to load WindUI: " .. tostring(err))
+    return
+end
+
+WindUI:Popup({
+    Title = "Arbix Hub",
+    Icon = "rbxassetid://127890487146474",
+    Content = "Join our Discord server",
+    Buttons = {
+        {
+            Title = "Copy Link",
+            Icon = "arrow-right",
+            Variant = "Primary",
+            Callback = function()
+                setclipboard("https://discord.gg/msMBwQc6BF")
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Discord Invite",
+                    Text = "Link Copied to Clipboard!",
+                    Icon = "rbxassetid://127890487146474",
+                    Duration = 4
+                })
+            end
+        }
+    }
+})
+
+local Window = WindUI:CreateWindow({
+    Title = "Arbix Hub",
+    Icon = "rbxassetid://127890487146474",
+    Author = "Slap Battles",
+    Folder = "GalaxiesHub",
+    Size = UDim2.fromOffset(380, 260),
+    Transparent = true,
+    Theme = "Dark",
+    Resizable = true,
+    SideBarWidth = 200,
+    Background = "",
+    BackgroundImageTransparency = 0.42,
+    HideSearchBar = true,
+    ScrollBarEnabled = false,
+    User = {
+        Enabled = true,
+        Anonymous = false,
+        Callback = function()
+        end,
+    },
+    Minimized = function(minimized)
+        if minimized then
+            Window:SetTheme("Dark")
+        else
+            Window:SetTheme("Dark")
+        end
+    end
+})
+
+local Players = game:GetService("Players")
+local RepStorage = game:GetService("ReplicatedStorage")
+local player = game.Players.LocalPlayer
+
+local Discord = Window:Tab({ Title = "Discord", Icon = "badge-alert" })
+local Main = Window:Tab({ Title = "Main", Icon = "landmark" })
+local Power = Window:Tab({ Title = "Power", Icon = "zap" })
+local Visual = Window:Tab({ Title = "Visual", Icon = "eye" })
+local Partner = Window:Tab({ Title = "Partner", Icon = "handshake" })
+local Badges = Window:Tab({ Title = "Badges", Icon = "award" })
+local Troll = Window:Tab({ Title = "Troll", Icon = "users" })
+
+local antiVoidEnabled = false
+local antiVoidPart
+local antiRagdollEnabled = false
+local antiMegarockEnabled = false
+local antiKnockoffEnabled = false
+local antiTimestopEnabled = false
+local antiCubeEnabled = false
+local antiIceEnabled = false
+local auraEnabled = false
+local espEnabled = false
+local espBoxes = {}
+local targetWalkSpeed = 16
+local targetJumpPower = 50
+local running = false
+local targetName = ""
+
+local function httpGet(url)
+    local success, result = pcall(function()
+        if syn and syn.request then
+            local response = syn.request({Url = url, Method = "GET"})
+            return response.Body
+        elseif request then
+            local response = request({Url = url, Method = "GET"})
+            return response.Body
+        else
+            return game:HttpGet(url)
+        end
+    end)
+    return success and result or nil
+end
+
+local function safeSetClipboard(text)
+    pcall(function()
+        if setclipboard then
+            setclipboard(text)
+        elseif toclipboard then
+            toclipboard(text)
+        elseif writeclipboard then
+            writeclipboard(text)
+        end
+    end)
+end
+
+Discord:Section({ Title = "Join Discord Server" })
+Discord:Button({
+    Title = "Discord Invite",
+    Desc = "Copy Invite Link",
+    Locked = false,
+    Callback = function()
+        safeSetClipboard("https://discord.gg/msMBwQc6BF")
+        WindUI:Notify({
+            Title = "ARBIX HUB Notfier",
+            Icon = "rbxassetid://127890487146474",
+            Content = "✅ Link Copied!",
+            Duration = 4
+        })
+    end
+})
+
+Main:Section({ Title = "Anti-Features" })
+
+Main:Toggle({
+    Title = "Anti-Void",
+    Desc = "Prevents falling into void",
+    Callback = function(value)
+        antiVoidEnabled = value
+        task.spawn(function()
+            if antiVoidEnabled then
+                if antiVoidPart then 
+                    pcall(function() antiVoidPart:Destroy() end) 
+                end
+                antiVoidPart = Instance.new("Part")
+                antiVoidPart.Name = "Anti-Void"
+                antiVoidPart.Anchored = true
+                antiVoidPart.CanCollide = true
+                antiVoidPart.Size = Vector3.new(2000,5,2000)
+                antiVoidPart.Position = Vector3.new(0,-11,0)
+                antiVoidPart.Transparency = 0.7
+                antiVoidPart.Material = Enum.Material.SmoothPlastic
+                antiVoidPart.TopSurface = Enum.SurfaceType.Smooth
+                antiVoidPart.BottomSurface = Enum.SurfaceType.Smooth
+                antiVoidPart.Parent = workspace
+                WindUI:Notify({
+                    Title = "Anti-Void Activated",
+                    Icon = "shield-check",
+                    Content = "Players cannot fall below!",
+                    Duration = 3
+                })
+            else
+                if antiVoidPart then
+                    pcall(function() antiVoidPart:Destroy() end)
+                    antiVoidPart = nil
+                end
+                WindUI:Notify({
+                    Title = "Anti-Void Disabled",
+                    Icon = "shield-off",
+                    Content = "Players can fall again.",
+                    Duration = 3
+                })
+            end
+        end)
+    end
+})
+
+Main:Toggle({
+    Title = "No Knockback",
+    Desc = "Prevents ragdoll effects",
+    Callback = function(state)
+        antiRagdollEnabled = state
+        if antiRagdollEnabled then
+            if player.Character then
+                player.Character.Humanoid.Health = 0
+            end
+            player.CharacterAdded:Connect(function(char)
+                char:WaitForChild("Ragdolled").Changed:Connect(function()
+                    if char:WaitForChild("Ragdolled").Value == true and antiRagdollEnabled then
+                        repeat 
+                            task.wait() 
+                            if char:FindFirstChild("Torso") then
+                                char.Torso.Anchored = true
+                            end
+                        until char:WaitForChild("Ragdolled").Value == false or not antiRagdollEnabled
+                        if char:FindFirstChild("Torso") then
+                            char.Torso.Anchored = false
+                        end
+                    end
+                end)
+            end)
+        end
+    end
+})
+
+Main:Toggle({
+    Title = "Anti Megarock/CUSTOM",
+    Desc = "Makes rocks non-interactable",
+    Callback = function(state)
+        antiMegarockEnabled = state
+        task.spawn(function()
+            while antiMegarockEnabled do
+                pcall(function()
+                    for _,v in pairs(game.Players:GetChildren()) do
+                        if v.Character and v.Character:FindFirstChild("rock") then
+                            v.Character:FindFirstChild("rock").CanTouch = false
+                            v.Character:FindFirstChild("rock").CanQuery = false
+                        end
+                    end
+                end)
+                task.wait()
+            end
+        end)
+    end
+})
+
+Main:Toggle({
+    Title = "Anti Knockoff",
+    Desc = "Prevents camera knockoff",
+    Callback = function(state)
+        antiKnockoffEnabled = state
+        task.spawn(function()
+            while antiKnockoffEnabled do
+                pcall(function()
+                    if workspace.CurrentCamera and player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+                        local cameraSubject = workspace.CurrentCamera.CameraSubject
+                        local falseHead = workspace:FindFirstChild(player.Name.."'s_falsehead")
+                        
+                        if cameraSubject ~= player.Character:FindFirstChildOfClass("Humanoid") and cameraSubject == falseHead then
+                            workspace.CurrentCamera.CameraSubject = player.Character:FindFirstChildOfClass("Humanoid")
+                        end
+                    end
+                end)
+                task.wait()
+            end
+        end)
+    end
+})
+
+Main:Toggle({
+    Title = "Anti TimeStop",
+    Desc = "Prevents timestop effects",
+    Callback = function(state)
+        antiTimestopEnabled = state
+        task.spawn(function()
+            while antiTimestopEnabled do
+                pcall(function()
+                    if player.Character then
+                        for i,v in pairs(player.Character:GetChildren()) do
+                            if v.ClassName == "Part" then
+                                v.Anchored = false
+                            end
+                        end
+                    end
+                end)
+                task.wait()
+            end
+        end)
+    end
+})
+
+Main:Toggle({
+    Title = "Anti Cube Of Death",
+    Desc = "Makes death cube safe",
+    Callback = function(state)
+        antiCubeEnabled = state
+        pcall(function()
+            local cube = workspace.Arena.CubeOfDeathArea["the cube of death(i heard it kills)"]
+            if cube then
+                cube.CanTouch = not state
+            end
+        end)
+    end
+})
+
+Main:Toggle({
+    Title = "Anti Ice",
+    Desc = "Prevents ice freezing",
+    Callback = function(state)
+        antiIceEnabled = state
+        task.spawn(function()
+            while antiIceEnabled do
+                pcall(function()
+                    if player.Character then
+                        for i,v in pairs(player.Character:GetChildren()) do
+                            if v.Name == "Icecube" then
+                                v:Destroy()
+                                player.Character.Humanoid.PlatformStand = false
+                                player.Character.Humanoid.AutoRotate = true
+                            end
+                        end
+                    end
+                end)
+                task.wait()
+            end
+        end)
+    end
+})
+
+Main:Section({ Title = "Farming" })
+
+Main:Button({
+    Title = "Candycorn Farm",
+    Desc = "Automatically collect candy corn",
+    Callback = function()
+        local CornFolder = workspace:WaitForChild("CandyCorns")
+        repeat task.wait() until player.Character
+        local root = player.Character:WaitForChild("HumanoidRootPart")
+        local OldPos = root.CFrame
+
+        local function CollectCorn(Corn)
+            if not Corn or not Corn:IsDescendantOf(workspace) then return end
+            OldPos = root.CFrame
+            root.CFrame = Corn.CFrame + Vector3.new(0, 10, 0)
+            task.wait(1)
+            root.CFrame = OldPos
+        end
+
+        for _, CornObj in pairs(CornFolder:GetChildren()) do
+            CollectCorn(CornObj)
+        end
+
+        CornFolder.ChildAdded:Connect(CollectCorn)
+
+        player.CharacterAdded:Connect(function(char)
+            root = char:WaitForChild("HumanoidRootPart")
+        end)
+        
+        WindUI:Notify({
+            Title = "Candycorn Farm",
+            Icon = "candy",
+            Content = "Farm started!",
+            Duration = 3
+        })
+    end
+})
+
+Power:Section({ Title = "Features" })
+
+Power:Toggle({
+    Title = "Slap Aura",
+    Desc = "Auto-slaps nearby players",
+    Callback = function(value)
+        auraEnabled = value
+        if auraEnabled then
+            pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/Yuna-ux/Slap-battles/refs/heads/main/Slap_aura.lua"))()
+            end)
+            WindUI:Notify({
+                Title = "Slap Aura Activated",
+                Icon = "zap",
+                Content = "Slap Aura is now ON",
+                Duration = 3
+            })
+        else
+            WindUI:Notify({
+                Title = "Slap Aura Disabled",
+                Icon = "zap-off",
+                Content = "Slap Aura is now OFF",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Visual:Section({ Title = "Player ESP" })
+
+Visual:Toggle({
+    Title = "ESP Players",
+    Desc = "Show player locations",
+    Callback = function(value)
+        espEnabled = value
+        if espEnabled then
+            WindUI:Notify({
+                Title = "ESP Activated",
+                Icon = "eye",
+                Content = "Player ESP is now ON",
+                Duration = 3
+            })
+        else
+            for _, boxData in pairs(espBoxes) do
+                if boxData.Box then pcall(function() boxData.Box:Destroy() end) end
+                if boxData.Text then pcall(function() boxData.Text:Destroy() end) end
+            end
+            espBoxes = {}
+            WindUI:Notify({
+                Title = "ESP Disabled",
+                Icon = "eye-off",
+                Content = "Player ESP is now OFF",
+                Duration = 3
+            })
+        end
+    end
+})
+
+Visual:Section({ Title = "Movement" })
+
+Visual:Input({
+    Title = "WalkSpeed",
+    Desc = "Set your movement speed",
+    Callback = function(text)
+        local value = tonumber(text)
+        if value then
+            targetWalkSpeed = value
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.WalkSpeed = value
+            end
+        end
+    end
+})
+
+Visual:Input({
+    Title = "JumpPower",
+    Desc = "Set your jump power",
+    Callback = function(text)
+        local value = tonumber(text)
+        if value then
+            targetJumpPower = value
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.JumpPower = value
+            end
+        end
+    end
+})
+
+Partner:Section({ Title = "Partner Features" })
+
+Partner:Button({
+    Title = "Bypass Words",
+    Desc = "Bypass chat filters",
+    Callback = function()
+        pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/fearlessd3v/TEAM-FEARLESS/refs/heads/main/fearless-chat-bypass"))()
+        end)
+    end
+})
+
+Badges:Section({ Title = "Get Redacted Glove" })
+
+Badges:Button({
+    Title = "Get Redacted Glove",
+    Desc = "Need 5k And More Slap",
+    Callback = function()
+        if player.leaderstats.Slaps.Value >= 5000 then
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["1"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["10"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["2"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["3"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["4"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["5"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["6"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["7"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["8"].CFrame
+            wait(3.75)
+            player.Character.HumanoidRootPart.CFrame = workspace.PocketDimension.Doors["9"].CFrame
+        else 
+            WindUI:Notify({
+                Title = "Error",
+                Icon = "alert-circle",
+                Content = "Need 5000 And More Slap.",
+                Duration = 10
+            })
+        end
+    end
+})
+
+Badges:Section({ Title = "Get Retro Glove" })
+
+Badges:Button({
+    Title = "Get Retro Glove",
+    Desc = "Badge",
+    Callback = function()
+        if player.leaderstats.Glove.Value == "Recall" then
+            player.Character.HumanoidRootPart.CFrame = workspace.FinishDoor_Retro.Part.CFrame
+        else
+            WindUI:Notify({
+                Title = "Error",
+                Icon = "alert-circle",
+                Content = "Need Recall Glove.",
+                Duration = 10
+            })
+        end
+    end
+})
+
+Badges:Section({ Title = "Brazil Badge" })
+
+Badges:Button({
+    Title = "TP to Brazil",
+    Desc = "You Got Kicked",
+    Callback = function()
+        player.Character.HumanoidRootPart.CFrame = workspace.Lobby.brazil.portal.CFrame
+    end
+})
+
+Badges:Section({ Title = "Get Duck, The Lone Orange, Court Evidence Badge" })
+
+Badges:Button({
+    Title = "Get Badge",
+    Desc = "Badge",
+    Callback = function()
+        pcall(function() fireclickdetector(workspace.Arena["default island"]["Rubber Ducky"].ClickDetector) end)
+        pcall(function() fireclickdetector(workspace.Lobby.Scene.knofe.ClickDetector) end)
+        pcall(function() fireclickdetector(workspace.Arena.island5.Orange.ClickDetector) end)
+    end
+})
+
+Badges:Section({ Title = "Get Admin Glove" })
+
+Badges:Button({
+    Title = "Get Admin Glove",
+    Desc = "Badge",
+    Callback = function()
+        if RepStorage.Assets.Retro.Map then
+            RepStorage.Assets.Retro.Map.Parent = workspace
+            wait(0.4)
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(-16971.7168, 797.600342, 4905.17334, 0.230043754, -4.140692e-8, 0.973180294, -1.6209555e-8, 1, 4.6379718e-8, -0.973180294, -2.6444184e-8, 0.230043754)
+            wait(0.4)
+            pcall(function() fireclickdetector(workspace.Map.RetroObbyMap:GetChildren()[5].StaffApp.Button.ClickDetector) end)
+        else
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(-16971.7168, 797.600342, 4905.17334, 0.230043754, -4.140692e-8, 0.973180294, -1.6209555e-8, 1, 4.6379718e-8, -0.973180294, -2.6444184e-8, 0.230043754)
+            wait(0.4)
+            pcall(function() fireclickdetector(workspace.Map.RetroObbyMap:GetChildren()[5].StaffApp.Button.ClickDetector) end)
+        end
+    end
+})
+
+Badges:Section({ Title = "Get Lamp Glove" })
+
+Badges:Button({
+    Title = "Get Lamp Glove",
+    Desc = "Need ZZZZZZZ Glove",
+    Callback = function()
+        if player.leaderstats.Glove.Value == "ZZZZZZZ" then
+            for i = 1,5 do
+                pcall(function() RepStorage.nightmare:FireServer("LightBroken") end)
+            end
+        else
+            WindUI:Notify({
+                Title = "Error",
+                Icon = "alert-circle",
+                Content = "Need ZZZZZZZ Glove.",
+                Duration = 10
+            })
+        end
+    end
+})
+
+Badges:Section({ Title = "Get Bomb Glove" })
+
+Badges:Button({
+    Title = "Get Bomb Glove",
+    Desc = "Need Warp and located in arena",
+    Callback = function()
+        if player.leaderstats.Glove.Value == "Warp" and player.Character:FindFirstChild("entered") then
+            local players = Players:GetChildren()
+            local RandomPlayer = players[math.random(1, #players)]
+            repeat RandomPlayer = players[math.random(1, #players)] until RandomPlayer ~= player and RandomPlayer.Character:FindFirstChild("entered") and RandomPlayer.Character:FindFirstChild("Ragdolled").Value == false
+            player.Character.HumanoidRootPart.CFrame = RandomPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame
+            wait(0.3)
+            pcall(function() RepStorage.WarpHt:FireServer(RandomPlayer.Character:WaitForChild("HumanoidRootPart")) end)
+            wait(0.3)
+            pcall(function() RepStorage.WLOC:FireServer() end)
+            wait(0.2)
+            player.Character.HumanoidRootPart.CFrame = workspace.DEATHBARRIER.CFrame
+        else
+            WindUI:Notify({
+                Title = "Error",
+                Icon = "alert-circle",
+                Content = "Need Warp Glove And Located in the Arena",
+                Duration = 10
+            })
+        end
+    end
+})
+
+Badges:Section({ Title = "Get The Schlob Glove" })
+
+Badges:Button({
+    Title = "Get The Schlob Glove",
+    Desc = "Need Cloud",
+    Callback = function()
+        if player.leaderstats.Glove.Value == "Cloud" and not player.Character:FindFirstChild("entered") then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(-120.539459, 133.998047, -444.654419)
+            wait(0.1)
+            pcall(function() RepStorage.CloudAbility:FireServer() end)
+            pcall(function() fireclickdetector(workspace.Lobby.fish.ClickDetector) end)
+            repeat task.wait() 
+                pcall(function() 
+                    firetouchinterest(player.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 0) 
+                    firetouchinterest(player.Character:WaitForChild("Head"), workspace.Lobby.Teleport1.TouchInterest.Parent, 1)
+                end)
+            until player.Character:FindFirstChild("entered")
+            if player.Character.Humanoid.Sit == false then
+                for i,v in pairs(workspace:GetChildren()) do
+                    if v.Name == player.Name.."_Cloud" and v:FindFirstChild("VehicleSeat") then
+                        player.Character.HumanoidRootPart.CFrame = v.VehicleSeat.CFrame
+                        wait(0.3)
+                        pcall(function() RepStorage:WaitForChild("GeneralAbility"):FireServer() end)
+                        wait(0.3)
+                        repeat task.wait() 
+                            player.Character.HumanoidRootPart.CFrame = workspace.Arena.Plate.CFrame
+                        until player.Character.Ragdolled.Value == false
+                    end
+                end
+            else
+                wait(0.3)
+                pcall(function() RepStorage:WaitForChild("GeneralAbility"):FireServer() end)
+                wait(0.3)
+                repeat task.wait() 
+                    player.Character.HumanoidRootPart.CFrame = workspace.Arena.Plate.CFrame
+                until player.Character.Ragdolled.Value == false
+            end
+        else
+            WindUI:Notify({
+                Title = "Error",
+                Icon = "alert-circle",
+                Content = "Need Cloud Glove And Located in the Lobby",
+                Duration = 10
+            })
+        end
+    end
+})
+
+Troll:Section({ Title = "Player Troll" })
+
+Troll:Input({
+    Title = "Target Player",
+    Desc = "Enter player name to troll",
+    Callback = function(text)
+        targetName = text
+    end
+})
+
+Troll:Button({
+    Title = "Start Troll",
+    Desc = "Begin trolling target player",
+    Callback = function()
+        if running then return end
+        local function findPlayer(shortName)
+            for _, p in pairs(Players:GetPlayers()) do
+                if p.Name:lower():sub(1, #shortName) == shortName:lower() then
+                    return p
+                end
+            end
+        end
+        
+        local targetPlayer = findPlayer(targetName)
+        if targetPlayer and targetPlayer:FindFirstChild("leaderstats")
+            and targetPlayer.leaderstats:FindFirstChild("Slaps")
+            and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+            and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+
+            running = true
+            local Sound = Instance.new("Sound")
+            Sound.SoundId = "rbxassetid://5213679380"
+            Sound.Volume = 2
+            Sound.Parent = workspace
+            
+            while running do
+                local hrp = targetPlayer.Character.HumanoidRootPart
+                hrp.CFrame = player.Character.HumanoidRootPart.CFrame
+                pcall(function() Sound:Play() end)
+
+                local args = {
+                    [1] = {
+                        ["Direction"] = Vector3.new(1, 0.01, 0),
+                        ["Force"] = 40
+                    }
+                }
+
+                pcall(function() RepStorage:WaitForChild("SelfKnockback", 9000000000):FireServer(unpack(args)) end)
+                targetPlayer.leaderstats.Slaps.Value += 1
+
+                task.spawn(function()
+                    task.wait(0.4)
+                    for _ = 1, 5 do
+                        if running and targetPlayer.Character and hrp then
+                            hrp.CFrame = CFrame.new(10000, 10000, 10000)
+                        end
+                        task.wait(0.1)
+                    end
+                end)
+
+                task.wait(2.3)
+            end
+        end
+    end
+})
+
+Troll:Button({
+    Title = "Stop Troll",
+    Desc = "Stop trolling target player",
+    Callback = function()
+        running = false
+        WindUI:Notify({
+            Title = "Troll Stopped",
+            Icon = "stop-circle",
+            Content = "Trolling has been stopped",
+            Duration = 3
+        })
+    end
+})
+
+local function createESP(plr)
+    if plr == player then return end
+    if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+        if espBoxes[plr] then
+            if espBoxes[plr].Box then pcall(function() espBoxes[plr].Box:Destroy() end) end
+            if espBoxes[plr].Text then pcall(function() espBoxes[plr].Text:Destroy() end) end
+        end
+        local box = Instance.new("BoxHandleAdornment")
+        box.Adornee = plr.Character.HumanoidRootPart
+        box.AlwaysOnTop = true
+        box.ZIndex = 10
+        box.Size = Vector3.new(2, plr.Character.HumanoidRootPart.Size.Y + 3, 2)
+        box.Color3 = Color3.fromRGB(255,255,255)
+        box.Transparency = 0.7
+        box.Parent = plr.Character.HumanoidRootPart
+        local billboard = Instance.new("BillboardGui")
+        billboard.Size = UDim2.new(0,250,0,50)
+        billboard.AlwaysOnTop = true
+        billboard.Adornee = plr.Character.HumanoidRootPart
+        billboard.Parent = player:WaitForChild("PlayerGui")
+        local text = Instance.new("TextLabel")
+        text.Size = UDim2.new(1,0,1,0)
+        text.BackgroundTransparency = 1
+        text.TextColor3 = Color3.fromRGB(255,255,255)
+        text.TextScaled = true
+        text.Font = Enum.Font.GothamBold
+        text.TextWrapped = true
+        text.Parent = billboard
+        espBoxes[plr] = {Box=box, Text=text}
+    end
+end
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if espEnabled then
+        for _, plr in pairs(game.Players:GetPlayers()) do
+            if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                createESP(plr)
+                local hrp = plr.Character.HumanoidRootPart
+                local dist = (player.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                if espBoxes[plr] and espBoxes[plr].Text then
+                    espBoxes[plr].Text.Text = string.format("%s | %s | %.1f studs", plr.Name, plr.DisplayName, dist)
+                end
+            end
+        end
+    end
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        local hum = player.Character.Humanoid
+        if hum.WalkSpeed ~= targetWalkSpeed then hum.WalkSpeed = targetWalkSpeed end
+        if hum.JumpPower ~= targetJumpPower then hum.JumpPower = targetJumpPower end
+    end
+end)
+
+player.CharacterAdded:Connect(function(char)
+    local hum = char:WaitForChild("Humanoid")
+    hum.WalkSpeed = targetWalkSpeed
+    hum.JumpPower = targetJumpPower
+end)
+
+game.Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        if espEnabled then task.wait(0.5) createESP(plr) end
+    end)
+end)
+
+WindUI:Notify({
+    Title = "Galaxies Hub",
+    Icon = "rbxassetid://127890487146474",
+    Content = "Successfully loaded! Enjoy!",
+    Duration = 5
+})
