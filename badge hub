@@ -1,3 +1,5 @@
+-- This file was generated at discord.gg/syncrypt
+
 game:GetService("RunService")
 local LocalPlayer = game.Players.LocalPlayer
 local _cloneref = cloneref
@@ -28,7 +30,7 @@ local uDim = UDim.new(1, 0)
 local CreateWindow = v10.CreateWindow
 local colorSequence = ColorSequence.new(Color3.fromHex("#FF00A6"), Color3.fromHex("#7000FF"))
 local t3 = {
-	Title = "Badge Hub By Boiled",
+	Title = "Badge Hub By vw62",
 	CornerRadius = uDim,
 	StrokeThickness = 3,
 	Enabled = true,
