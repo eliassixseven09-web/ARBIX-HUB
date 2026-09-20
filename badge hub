@@ -1,5 +1,3 @@
--- This file was generated at discord.gg/syncrypt
-
 game:GetService("RunService")
 local LocalPlayer = game.Players.LocalPlayer
 local _cloneref = cloneref
