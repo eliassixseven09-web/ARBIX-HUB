@@ -1,0 +1,953 @@
+-- This file was generated at discord.gg/syncrypt
+
+game:GetService("RunService")
+local LocalPlayer = game.Players.LocalPlayer
+local _cloneref = cloneref
+if not _cloneref then
+    _cloneref = clonereference or function(p1)
+        return p1
+    end
+end
+local v3 = _cloneref(game:GetService("ReplicatedStorage"))
+_cloneref(game:GetService("HttpService"))
+local t1 = {
+	workspace.DEATHBARRIER2,
+	workspace.AntiDefaultArena,
+	workspace.Antidream,
+	workspace.ArenaBarrier,
+	workspace.DEATHBARRIER,
+	workspace.dedBarrier
+}
+for _, v in pairs(t1) do
+    v:Destroy()
+end
+local success, result = pcall(function()
+    return require("./src/Init")
+end)
+local u9 = if not success then if not _cloneref(game:GetService("RunService")):IsStudio() then loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))() else require(_cloneref(v3:WaitForChild("WindUI"):WaitForChild("Init"))) else result
+local v10 = u9
+local uDim = UDim.new(1, 0)
+local CreateWindow = v10.CreateWindow
+local colorSequence = ColorSequence.new(Color3.fromHex("#FF00A6"), Color3.fromHex("#7000FF"))
+local t3 = {
+	Title = "Badge Hub By Boiled",
+	CornerRadius = uDim,
+	StrokeThickness = 3,
+	Enabled = true,
+	Draggable = true,
+	OnlyMobile = false,
+	Scale = 1,
+	Color = colorSequence
+}
+local t4 = {
+	Height = 44,
+	ButtonsType = "Default"
+}
+local v16 = CreateWindow(v10, {
+	Title = "ARBIX HUB Badge GUI | by vw62",
+	Folder = "ARBIX HUB",
+	Icon = "badge",
+	Theme = "Rose",
+	NewElements = true,
+	HideSearchBar = false,
+	OpenButton = t3,
+	Topbar = t4
+})
+local v17 = v16:Tab({
+	Title = "Badges",
+	Icon = "badge-check"
+})
+local v18 = v16:Tab({
+	Title = "Credits",
+	Icon = "info"
+})
+local t5 = {
+	Badges = v17,
+	Credits = v18
+}
+t5.Credits:Paragraph({
+	Title = "Credits to vw62 for cuz he is the goat. btw vw62 did everything while being a single dev"
+})
+v16:SelectTab(1)
+t5.Badges:Button({
+	Title = "Instant Camera",
+	Icon = "badge-check",
+	Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/BINW6kk3/raw"))()
+end
+})
+t5.Badges:Button({
+	Title = "Instant Iceskate",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("ReplicatedStorage").IceSkate:FireServer("Freeze")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Lamp",
+	Desc = "must own zzzzzzz",
+	Icon = "badge-check",
+	Callback = function()
+    fireclickdetector(workspace.Lobby.ZZZZZZZ.ClickDetector)
+
+    for _ = 1, 6 do
+        game:GetService("ReplicatedStorage").nightmare:FireServer("LightBroken")
+    end
+end
+})
+t5.Badges:Button({
+	Title = "Instant Lag",
+	Icon = "badge-check",
+	Callback = function()
+    local Character = LocalPlayer.Character
+    local HumanoidRootPart = LocalPlayer.Character.HumanoidRootPart
+    local _ = LocalPlayer.Character.Humanoid
+
+    Character:FindFirstChild("entered")
+
+    repeat
+        firetouchinterest(workspace.Lobby.Teleport1, HumanoidRootPart, 0)
+        wait()
+    until Character:FindFirstChild("entered")
+
+    Character:MoveTo(Vector3.new(154, 699, -6))
+
+    for _ = 1, 1000 do
+        task.wait(0.01)
+        Character:MoveTo(Vector3.new(154, 699, -6))
+    end
+
+    game:GetService("Players").LocalPlayer.Reset:FireServer()
+end
+})
+t5.Badges:Button({
+	Title = "Instant Debug",
+	Icon = "badge-check",
+	Callback = function()
+    local _ = LocalPlayer.Character
+    local _ = LocalPlayer.Character.HumanoidRootPart
+    local _ = LocalPlayer.Character.Humanoid
+    local str = tostring(workspace["Debug Room"].DuckTable.DuckTable.Duckies.Value)
+    local str2 = tostring(workspace["Debug Room"].AdminGloves.GlovesCode.SurfaceGui.AdminNumber.Text)
+    local str3 = tostring(workspace["Debug Room"].Maze.MazePrize.SurfaceGui.MazeNumber.Text)
+    local Buttons = workspace["Debug Room"].Keypad.Buttons
+    local ClickDetector = Buttons[str].ClickDetector
+    local ClickDetector2 = Buttons[str2].ClickDetector
+    local ClickDetector3 = Buttons[str3].ClickDetector
+    local ClickDetector4 = Buttons["7"].ClickDetector
+
+    fireclickdetector(ClickDetector)
+    fireclickdetector(ClickDetector2)
+    fireclickdetector(ClickDetector3)
+    fireclickdetector(ClickDetector4)
+    fireclickdetector(Buttons.Enter.ClickDetector)
+end
+})
+t5.Badges:Button({
+	Title = "Instant Bob",
+	Desc = "Requires Replica & Counter (by nexer)",
+	Icon = "badge-check",
+	Callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/NewNexer/NexerHub/refs/heads/main/SB/P/Autobob.luau"))()
+end
+})
+t5.Badges:Button({
+	Title = "Instant Frostbite",
+	Desc = "",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(17290438723, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport([[task.wait(3)
+local pp = workspace:WaitForChild("FinishDoor_Ice"):WaitForChild("Model"):WaitForChild("Part"):WaitForChild("ProximityPrompt")
+game.Players.LocalPlayer.Character:MoveTo(pp.Parent.Position)
+task.wait(0.2)
+fireproximityprompt(pp)
+    task.wait(1)
+    game:GetService("TeleportService"):Teleport(6403373529, game.Players.LocalPlayer)
+]])
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport([[task.wait(3)
+local pp = workspace:WaitForChild("FinishDoor_Ice"):WaitForChild("Model"):WaitForChild("Part"):WaitForChild("ProximityPrompt")
+game.Players.LocalPlayer.Character:MoveTo(pp.Parent.Position)
+task.wait(0.2)
+fireproximityprompt(pp)
+    task.wait(1)
+    game:GetService("TeleportService"):Teleport(6403373529, game.Players.LocalPlayer)
+]])
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport([[task.wait(3)
+local pp = workspace:WaitForChild("FinishDoor_Ice"):WaitForChild("Model"):WaitForChild("Part"):WaitForChild("ProximityPrompt")
+game.Players.LocalPlayer.Character:MoveTo(pp.Parent.Position)
+task.wait(0.2)
+fireproximityprompt(pp)
+    task.wait(1)
+    game:GetService("TeleportService"):Teleport(6403373529, game.Players.LocalPlayer)
+]])
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Bind",
+	Desc = "",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(74169485398268, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("    task.wait(3)\n    fireclickdetector(workspace.Orb.ClickDetector)\n    task.wait(2)\n    game:GetService(\"TeleportService\"):Teleport(6403373529, game.Players.LocalPlayer)\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("    task.wait(3)\n    fireclickdetector(workspace.Orb.ClickDetector)\n    task.wait(2)\n    game:GetService(\"TeleportService\"):Teleport(6403373529, game.Players.LocalPlayer)\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("    task.wait(3)\n    fireclickdetector(workspace.Orb.ClickDetector)\n    task.wait(2)\n    game:GetService(\"TeleportService\"):Teleport(6403373529, game.Players.LocalPlayer)\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Untitled Tag Glove",
+	Desc = "",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(115782629143468, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("    task.wait(3)\n    fireclickdetector(workspace[\"Easy Button\"]:GetChildren()[2].ClickDetector)\n    fireclickdetector(workspace.Sign.Part1.ClickDetector)\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("    task.wait(3)\n    fireclickdetector(workspace[\"Easy Button\"]:GetChildren()[2].ClickDetector)\n    fireclickdetector(workspace.Sign.Part1.ClickDetector)\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("    task.wait(3)\n    fireclickdetector(workspace[\"Easy Button\"]:GetChildren()[2].ClickDetector)\n    fireclickdetector(workspace.Sign.Part1.ClickDetector)\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Elude",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(11828384869, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("    task.wait(3)\n    for i,v in pairs(workspace.Collectable:GetChildren()) do\n    firetouchinterest(v, game.Players.LocalPlayer.Character.Torso, 0)\nend\nfiretouchinterest(workspace.Ruins.Elude.Glove, game.Players.LocalPlayer.Character.Torso, 0)\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("    task.wait(3)\n    for i,v in pairs(workspace.Collectable:GetChildren()) do\n    firetouchinterest(v, game.Players.LocalPlayer.Character.Torso, 0)\nend\nfiretouchinterest(workspace.Ruins.Elude.Glove, game.Players.LocalPlayer.Character.Torso, 0)\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("    task.wait(3)\n    for i,v in pairs(workspace.Collectable:GetChildren()) do\n    firetouchinterest(v, game.Players.LocalPlayer.Character.Torso, 0)\nend\nfiretouchinterest(workspace.Ruins.Elude.Glove, game.Players.LocalPlayer.Character.Torso, 0)\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Boxer",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(7234087065, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("   task.wait(3)\nfiretouchinterest(workspace.Buildings.house.TP, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)\n    task.wait(1)\n    fireclickdetector(workspace.BoxingGloves.ClickDetector)\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("   task.wait(3)\nfiretouchinterest(workspace.Buildings.house.TP, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)\n    task.wait(1)\n    fireclickdetector(workspace.BoxingGloves.ClickDetector)\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("   task.wait(3)\nfiretouchinterest(workspace.Buildings.house.TP, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)\n    task.wait(1)\n    fireclickdetector(workspace.BoxingGloves.ClickDetector)\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Riftshot",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(7234087065, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("    task.wait(3)\n    game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-264, 16, 479))\ntask.wait(1)\nlocal Event = game:GetService(\"ReplicatedStorage\").RemoteEvents.TargetPractice.OnComplete\nEvent:FireServer()\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("    task.wait(3)\n    game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-264, 16, 479))\ntask.wait(1)\nlocal Event = game:GetService(\"ReplicatedStorage\").RemoteEvents.TargetPractice.OnComplete\nEvent:FireServer()\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("    task.wait(3)\n    game.Players.LocalPlayer.Character:MoveTo(Vector3.new(-264, 16, 479))\ntask.wait(1)\nlocal Event = game:GetService(\"ReplicatedStorage\").RemoteEvents.TargetPractice.OnComplete\nEvent:FireServer()\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Get Counter",
+	Desc = "Takes around 120 seconds.",
+	Icon = "badge-check",
+	Callback = function()
+    local Part = Instance.new("Part", workspace)
+
+    Part.Anchored = true
+    Part.Transparency = 0.7
+    Part.Position = Vector3.new(-26, 53, -40)
+    Part.Size = Vector3.new(1000, 1, 1000)
+    game.Players.LocalPlayer.Character:MoveTo(Part.Position + Vector3.new(0, 10, 0))
+    fireclickdetector(workspace.CounterLever.ClickDetector)
+
+    local TextLabel = Instance.new("TextLabel")
+
+    TextLabel.Parent = game.Players.LocalPlayer.PlayerGui.MazeUI
+    TextLabel.Font = Enum.Font.FredokaOne
+    TextLabel.Size = UDim2.new(0.3, 0, 0.05, 0)
+    TextLabel.Position = UDim2.new(0.35, 0, 0.1, 0)
+    TextLabel.TextScaled = true
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel.Text = "you must wait around 120 seconds to get the badge"
+    Instance.new("UIStroke", TextLabel)
+
+    while wait(5) do
+        for _, child in pairs(workspace.Maze:GetChildren()) do
+            if child:IsA("MeshPart") and child:FindFirstChild("SparkleSound") then
+                fireclickdetector(child.ClickDetector)
+            end
+        end
+    end
+end
+})
+t5.Badges:Button({
+	Title = "Instant Doorkeeper",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(125845699717230, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("task.wait(2.5)\n    while wait(0.2) do\n    for i,v in pairs(workspace.Hallways:GetDescendants()) do\n         if v:IsA(\"ClickDetector\") then\n             fireclickdetector(v)\n              task.wait(0.1)\n         end\n    end\nend\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("task.wait(2.5)\n    while wait(0.2) do\n    for i,v in pairs(workspace.Hallways:GetDescendants()) do\n         if v:IsA(\"ClickDetector\") then\n             fireclickdetector(v)\n              task.wait(0.1)\n         end\n    end\nend\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("task.wait(2.5)\n    while wait(0.2) do\n    for i,v in pairs(workspace.Hallways:GetDescendants()) do\n         if v:IsA(\"ClickDetector\") then\n             fireclickdetector(v)\n              task.wait(0.1)\n         end\n    end\nend\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Get Sand",
+	Icon = "badge-check",
+	Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/9w8Ijv04/raw", true))()
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport("task.wait(2.5)\nloadstring(game:HttpGet(\"https://pastefy.app/9w8Ijv04/raw\", true))()\n")
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport("task.wait(2.5)\nloadstring(game:HttpGet(\"https://pastefy.app/9w8Ijv04/raw\", true))()\n")
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport("task.wait(2.5)\nloadstring(game:HttpGet(\"https://pastefy.app/9w8Ijv04/raw\", true))()\n")
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Get Eggler",
+	Icon = "badge-check",
+	Callback = function()
+    for _, child in pairs(game:GetService("ReplicatedStorage")._NETWORK:GetChildren()) do
+        local v62 = child:IsA("RemoteEvent")
+
+        if v62 then
+            v62 = child.Name ~= "EquipRadio"
+
+            if v62 then
+                v62 = child.Name ~= "EquipRadio2"
+            end
+        end
+
+        if v62 then
+            child:FireServer("_questChainEasterHunter")
+        end
+    end
+
+    task.wait(0.5)
+
+    local EasterHuntEggs = workspace:WaitForChild("EasterHuntEggs", 1)
+
+    if EasterHuntEggs then
+        for _, child in pairs(EasterHuntEggs:GetChildren()) do
+            firetouchinterest(child, game.Players.LocalPlayer.Character.Torso, 0)
+        end
+    end
+
+    task.wait(0.5)
+
+    for _, child in pairs(game:GetService("ReplicatedStorage")._NETWORK:GetChildren()) do
+        local v68 = child:IsA("RemoteEvent")
+
+        if v68 then
+            v68 = child.Name ~= "EquipRadio"
+
+            if v68 then
+                v68 = child.Name ~= "EquipRadio2"
+            end
+        end
+
+        if v68 then
+            child:FireServer("_questChainEasterHunter")
+        end
+    end
+
+    task.wait(0.3)
+    game.Players.LocalPlayer.Character:MoveTo(Vector3.new(17882, -130, -3505))
+    task.wait(0.2)
+    fireclickdetector(workspace.BountyHunterRoom.EggTeleport.ClickDetector)
+    task.wait(0.5)
+    game:GetService("ReplicatedStorage").FriendInviteOption:FireServer(false)
+
+    local s1 = [[task.wait(5)
+    game.Players.LocalPlayer.Character:MoveTo(Vector3.new(68, 4235, 0))
+task.wait(0.2)
+fireproximityprompt(workspace.Kenneth.Head.DialoguePrompt)
+task.wait(1)
+
+for i = 1, 4 do
+    task.wait(0.5)
+
+local Event = game:GetService("ReplicatedStorage").Common.Dialogue.Remotes.ResondToDialogue
+Event:FireServer(
+    1
+)
+end
+game.Players.LocalPlayer.Character.HumanoidRootPart.Anchored = false
+for i,v in pairs(workspace:WaitForChild("TrialCompletedPoints"):GetDescendants()) do
+    if v:IsA("PointLight") then
+    task.wait(0.1)
+        firetouchinterest(v.Parent, game.Players.LocalPlayer.Character.Torso, 0)
+    end
+end
+
+-- This code was generated by Cobalt
+-- https://gitlab.com/upio/cobalt
+
+local Event = game:GetService("ReplicatedStorage").Common.Dialogue.Remotes.TriggerDialogue
+Event:FireServer(
+    "AwardBadge"
+)
+task.wait(1)
+game:GetService("TeleportService"):Teleport(6403373529, game.Players.LocalPlayer)
+
+]]
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport(s1)
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport(s1)
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport(s1)
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Instant Lotus",
+	Icon = "badge-check",
+	Callback = function()
+    game:GetService("TeleportService"):Teleport(93981091811742, game.Players.LocalPlayer)
+
+    local _syn = syn
+
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+
+    if _syn then
+        syn.queue_on_teleport([[task.wait(4)
+    local Event = game:GetService("ReplicatedStorage").Remotes.Lotus2Complete
+Event:FireServer()
+
+fireclickdetector(workspace.Lotus1_Red.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus3_Blue.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus4_Pink.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus5_White.Lotus.Primary.ClickDetector)
+]])
+
+        return
+    end
+
+    if queue_on_teleport then
+        queue_on_teleport([[task.wait(4)
+    local Event = game:GetService("ReplicatedStorage").Remotes.Lotus2Complete
+Event:FireServer()
+
+fireclickdetector(workspace.Lotus1_Red.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus3_Blue.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus4_Pink.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus5_White.Lotus.Primary.ClickDetector)
+]])
+
+        return
+    end
+
+    local _getgenv = getgenv
+
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+
+    if _getgenv then
+        getgenv().queue_on_teleport([[task.wait(4)
+    local Event = game:GetService("ReplicatedStorage").Remotes.Lotus2Complete
+Event:FireServer()
+
+fireclickdetector(workspace.Lotus1_Red.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus3_Blue.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus4_Pink.Lotus.Primary.ClickDetector)
+fireclickdetector(workspace.Lotus5_White.Lotus.Primary.ClickDetector)
+]])
+
+        return
+    end
+
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+t5.Badges:Button({
+	Title = "Get Sand",
+	Icon = "badge-check",
+	Callback = function()
+    loadstring(game:HttpGet("https://pastefy.app/9w8Ijv04/raw", true))()
+end
+})
+local s2 = "Instant G-X"
+t5.Badges:Button({
+	Title = s2,
+	Icon = "badge-check",
+	Callback = function()
+
+    for v76, v77 in pairs(game:GetService("ReplicatedStorage")._NETWORK:GetChildren()) do
+
+        local v78 = v77:IsA("RemoteEvent")
+
+        if v78 then
+            v78 = v77.Name ~= "EquipRadio"
+
+            if v78 then
+                v78 = v77.Name ~= "EquipRadio2"
+            end
+        end
+
+        if v78 then
+            v77:FireServer("_questOperaGX")
+        end
+    end
+    local s3 = [[task.wait(14)
+    firetouchinterest(workspace.Map:WaitForChild("Lobby").Portal1.Part, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+task.wait(0.5)
+fireclickdetector(workspace.Map:WaitForChild("Challenge1").RedButton.Button.ClickDetector)
+task.wait(4)
+firetouchinterest(workspace.Map:WaitForChild("Lobby").Portal3.Part, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+fireclickdetector(workspace.Map:WaitForChild("Challenge3").RedButton.Button.ClickDetector)
+task.wait(4)
+firetouchinterest(workspace.Map:WaitForChild("Lobby").Portal2.Part, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+fireclickdetector(workspace.Map:WaitForChild("Challenge2").RedButton.Button.ClickDetector)
+task.wait(4)
+firetouchinterest(workspace.Map.Lobby.EndPortal.Portal, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+
+]]
+    local _syn = syn
+    if _syn then
+        _syn = syn.queue_on_teleport
+    end
+    if _syn then
+        syn.queue_on_teleport(s3)
+
+        return
+    end
+    if queue_on_teleport then
+        queue_on_teleport(s3)
+
+        return
+    end
+    local _getgenv = getgenv
+    if _getgenv then
+        _getgenv = getgenv().queue_on_teleport
+    end
+    if _getgenv then
+        getgenv().queue_on_teleport(s3)
+
+        return
+    end
+    warn("Your executor does not support queue_on_teleport.")
+end
+})
+if game.Players.LocalPlayer._unlockedGloves.Plague.Value == false then
+    u9:Notify({
+		Title = "You dont own plague!"
+	})
+
+    return
+end
+for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+    if player:IsA("Player") then
+        s2 += 1
+        table.insert({}, player)
+    end
+end
+t5.Badges:Button({
+	Title = "Get Alchemist",
+	Icon = "badge-check",
+	Desc = "NOT instant. Use in a server with atleast 10 different players. This might get you banned if someone reports you",
+	Callback = function()
+    local v82
+    local LocalPlayer2 = game.Players.LocalPlayer
+    game:GetService("TweenService")
+    local LocalPlayer3 = game.Players.LocalPlayer
+    if LocalPlayer3._unlockedGloves.Plague.Value == false then
+        u9:Notify({
+				Title = "You dont own plague!"
+			})
+
+        return
+    end
+    for v87, v88 in ipairs(game:GetService("Players"):GetPlayers()) do
+
+        if v88:IsA("Player") then
+            local _table = table
+
+            v82 += 1
+            _table.insert({}, v88)
+        end
+    end
+    if v82 - 1 <= 5 then
+        u9:Notify({
+				Title = "Error",
+				Content = "Total players in your server must be more than 10"
+			})
+
+        return
+    end
+    local function v90(p2, p3)
+        local Character = LocalPlayer2.Character
+
+        if not Character then
+            Character = LocalPlayer2.CharacterAdded:Wait()
+        end
+
+        local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+        if HumanoidRootPart and p2 then
+            local HumanoidRootPartPosition = HumanoidRootPart.Position
+            local v107 = p2.Position - HumanoidRootPartPosition
+
+            if v107.Magnitude > 0 then
+                local cFrame = CFrame.lookAt(HumanoidRootPartPosition, HumanoidRootPartPosition + v107)
+                local v109 = p3 or 0
+
+                HumanoidRootPart.CFrame = cFrame * CFrame.Angles(math.rad(v109), 0, 0)
+            end
+        end
+    end
+    local Character = LocalPlayer3.Character
+    local HumanoidRootPart = LocalPlayer3.Character.HumanoidRootPart
+    local _ = LocalPlayer3.Character.Humanoid
+    local v94 = Character
+    fireclickdetector(workspace.Lobby.Plague.ClickDetector)
+    v94:FindFirstChild("entered")
+    repeat
+        firetouchinterest(workspace.Lobby.Teleport1, HumanoidRootPart, 0)
+        wait()
+    until v94:FindFirstChild("entered")
+    local Part = Instance.new("Part", workspace)
+    Part.Position = Vector3.new(149, 3798, -178)
+    Part.Size = Vector3.new(2300, 3, 2300)
+    Part.Anchored = true
+    Part.Transparency = 0.7
+    v94:MoveTo(Part.Position + Vector3.new(0, 5, 0))
+    local t6 = {}
+    local function v97()
+        table.clear(t6)
+
+        for _, child in pairs(workspace:GetChildren()) do
+            local childName = game.Players:FindFirstChild(child.Name)
+
+            if childName then
+                childName = child.Name ~= LocalPlayer3.Name and child:FindFirstChild("entered")
+            end
+
+            if childName then
+                table.insert(t6, child)
+            end
+        end
+    end
+    local t7 = {}
+    local n1 = 0
+    local function v100()
+        if t6[1] == nil then
+        end
+
+        repeat
+            v97()
+            wait(0.5)
+        until t6[1] ~= nil
+
+        for _, v in pairs(t6) do
+            if table.find(t7, v.Name) then
+                continue
+            end
+
+            local v115 = false
+
+            while true do
+                task.wait(1.5)
+                LocalPlayer2.Character.HumanoidRootPart.CFrame = v.Torso.CFrame + Vector3.new(0, 8, 0)
+                v90(v.Head)
+                task.wait(0.5)
+                game:GetService("ReplicatedStorage").PlagueHit:FireServer(v.Head)
+
+                local v116 = v.Humanoid.Health < 100
+
+                if v116 then
+                    v116 = v.Humanoid.Health > 0
+                end
+
+                if v116 then
+                    v115 = true
+                    print("TRUE!", v.Humanoid.Health)
+                end
+
+                v94:MoveTo(Part.Position + Vector3.new(0, 5, 0))
+
+                if v.Humanoid.Health <= 0 and v115 then
+                    break
+                end
+
+                if v.Humanoid.health <= 0 and not v115 then
+                    return
+                end
+            end
+
+            if v115 then
+                table.insert(t7, v.Name)
+                n1 += 1
+                print("Kill Count:", n1)
+                u9:Notify({
+						Title = "Killed " .. v.Name,
+						Content = "INSTANTLY leave after you get the badge."
+					})
+            end
+        end
+    end
+    repeat
+        local v101 = n1
+
+        v100()
+
+        if v101 == n1 then
+        end
+
+        repeat
+            wait()
+            v100()
+        until v101 ~= n1
+    until n1 >= 10
+    u9:Notify({
+			Title = "Success",
+			Content = "Alchemist obtained :fire:"
+		})
+end
+})
