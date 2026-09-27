@@ -82,6 +82,36 @@ t5.Badges:Button({
 end
 })
 t5.Badges:Button({
+	Title = "Insta Recall",
+	Desc = "Instantly triggers the Recall/SIMON SAYS reward.",
+	Icon = "badge-check",
+	Callback = function()
+		local LocalPlayer = game:GetService("Players").LocalPlayer
+		local HumanoidRootPart = (LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
+
+		task.spawn(function()
+			local u3
+			if u3 ~= "Simon says walk through the portal to collect your reward" then
+			end
+			repeat
+				task.wait(0.05)
+				pcall(function()
+					game:GetService("ReplicatedStorage").RecallReset:FireServer(nil, true)
+					u3 = game:GetService("ReplicatedStorage").RecallLastInteractionSteps:InvokeServer(false)
+				end)
+			until u3 == "Simon says walk through the portal to collect your reward"
+			task.wait(2)
+			local RepressedMemories = workspace:FindFirstChild("RepressedMemories")
+			if RepressedMemories then
+				RepressedMemories = workspace.RepressedMemories:FindFirstChild("Portal")
+			end
+			if RepressedMemories then
+				HumanoidRootPart.CFrame = workspace.RepressedMemories.Portal.CFrame
+			end
+		end)
+	end
+})
+t5.Badges:Button({
 	Title = "Instant Lamp",
 	Desc = "must own zzzzzzz",
 	Icon = "badge-check",
