@@ -1,7 +1,7 @@
 local Ophyn = loadstring(game:HttpGet("https://raw.githubusercontent.com/eliassixseven09-web/arbix-hub-guis/refs/heads/main/gui"))()
 
 Ophyn.new({
-    Title = "my hub Hub", -- put ur script hub name
+    Title = "my Hub", -- put ur script hub name
     Description = "Key System",
     Logo = "rbxassetid://", --- your assest id
     Theme = "Dark",
