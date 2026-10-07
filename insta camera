@@ -1,0 +1,377 @@
+local Players      = game:GetService("Players")
+local RS           = game:GetService("ReplicatedStorage")
+local VIM          = game:GetService("VirtualInputManager")
+ 
+local player       = Players.LocalPlayer
+local char         = player.Character or player.CharacterAdded:Wait()
+local hrp          = char:WaitForChild("HumanoidRootPart")
+local humanoid     = char:WaitForChild("Humanoid")
+local camRemotes   = RS.Assets.Obtainments.Camera.Remotes
+local isPhotoValid = camRemotes.IsPhotoValid
+ 
+local LOG = "[📷 CamBot]"
+ 
+ 
+local function tp(pos)
+    hrp.CFrame = CFrame.new(pos + Vector3.new(0, 4, 0))
+    task.wait(0.1)
+end
+ 
+local function pressQ()
+    VIM:SendKeyEvent(true,  Enum.KeyCode.Q, false, game)
+    task.wait(0.1)
+    VIM:SendKeyEvent(false, Enum.KeyCode.Q, false, game)
+    task.wait(0.1)
+end
+ 
+local function waitFor(condition, timeout)
+    local t = tick()
+    repeat task.wait(0.1) until condition() or tick() - t > (timeout or 0.0125)
+    return condition()
+end
+ 
+ 
+pressQ()
+ 
+ 
+local CAMERA_SPAWN = Vector3.new(-385.063934, 52.0801315, 2.81142139)
+tp(CAMERA_SPAWN)
+ 
+ 
+local cameraModel = nil
+ 
+local gotIt = waitFor(function()
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v.Name == "CameraModel" and v:IsA("Model") then
+            cameraModel = v
+            return true
+        end
+    end
+end, 0.1)
+ 
+if not gotIt or not cameraModel then
+    pressQ()
+    tp(CAMERA_SPAWN)
+    waitFor(function()
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v.Name == "CameraModel" and v:IsA("Model") then
+                cameraModel = v
+                return true
+            end
+        end
+    end, 0.1)
+end
+ 
+if cameraModel then
+    local camPartPos = cameraModel.PrimaryPart and cameraModel.PrimaryPart.Position
+        or cameraModel:GetPivot().Position
+    tp(camPartPos)
+ 
+    local prompt = cameraModel:FindFirstChildWhichIsA("ProximityPrompt", true)
+    if prompt then
+        fireproximityprompt(prompt)
+    end
+end
+ 
+ 
+local camTool = player.Backpack:FindFirstChild("Camera")
+    or (char and char:FindFirstChild("Camera"))
+ 
+if camTool then
+    humanoid:EquipTool(camTool)
+    task.wait(0.0125)
+end
+ 
+ 
+local PNG_SPOTS = {
+    { "1 – Cannon Island",           Vector3.new( 316.721,  31.268,  188.642), Vector3.new( 0.996, 0, -0.087) },
+    { "2 – Chain Obby to Slapple",   Vector3.new(-128.993,  -1.786,  125.199), Vector3.new( 0.705, 0, -0.709) },
+    { "3 – Moai Island Statue",      Vector3.new(-274.513, -19.490,  -10.172), Vector3.new(-0.714, 0,  0.700) },
+    { "4 – Slapple Island Big Tree", Vector3.new(-425.410,  56.777,  -23.400), Vector3.new( 0,     0,  1    ) },
+    { "5 – East Island Tree",        Vector3.new(  -8.155,  -2.694, -208.862), Vector3.new(-0.985, 0, -0.174) },
+    { "6 – The Fort",                Vector3.new( 242.086, -10.646,  -25.781), Vector3.new( 0.445, 0,  0.895) },
+    { "7 – Chain (Default↔Normal)",  Vector3.new( 116.677,  -2.879,    1.637), Vector3.new(-0.991, 0, -0.131) },
+}
+ 
+local function photographPart(part, lookVec)
+    local standPos = part.Position + lookVec * 7
+    tp(standPos)
+ 
+    workspace.CurrentCamera.CFrame = CFrame.lookAt(
+        standPos + Vector3.new(0, 2, 0),
+        part.Position
+    )
+    task.wait(0.0125)
+ 
+    local ok, result = pcall(function()
+        return isPhotoValid:InvokeServer(part)
+    end)
+ 
+    if ok and result then
+        part:Destroy()
+        return true
+    elseif ok then
+        VIM:SendMouseButtonEvent(0, 0, 0, true,  game, 1)
+        task.wait(0.0125)
+        VIM:SendMouseButtonEvent(0, 0, 0, false, game, 1)
+        task.wait(0.0125)
+        return false
+    else
+        return false
+    end
+end
+ 
+local folder = workspace:FindFirstChild("Camera_Obtainment_PNGS")
+ 
+local taken = 0
+ 
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+ 
+
+ for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
+
+
+for i, spot in ipairs(PNG_SPOTS) do
+    local name, targetPos, lookVec = spot[1], spot[2], spot[3]
+ 
+    local matchedPart = nil
+    for _, p in ipairs(folder:GetChildren()) do
+        if p:IsA("BasePart") and (p.Position - targetPos).Magnitude < 2 then
+            matchedPart = p
+            break
+        end
+    end
+ 
+    if not matchedPart then
+        continue
+    end
+ 
+    local success = photographPart(matchedPart, lookVec)
+    if success then
+        taken += 1
+    end
+    task.wait(0.0125)
+end
