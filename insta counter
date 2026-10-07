@@ -1,0 +1,51 @@
+-- ============================================
+-- Counter Badge Auto-Execute
+-- ============================================
+
+local teleportFunc = queueonteleport or queue_on_teleport or syn and syn.queue_on_teleport
+
+if teleportFunc then
+    teleportFunc([[
+        if not game:IsLoaded() then
+            game.Loaded:Wait()
+        end
+        repeat wait() until game.Players.LocalPlayer
+        repeat wait() until game.Players.LocalPlayer.Character
+        repeat wait() until game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-61.4113426, 4.67113781, -45.0443306, -0.0143145993, 0.00252397754, -0.999894321, -7.96703534e-06, 0.999996841, 0.00252435054, 0.99989748, 4.41164557e-05, -0.014314536)
+        wait(0.3)
+        fireclickdetector(game.Workspace.CounterLever.ClickDetector)
+        wait(1)
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(15.2456455, 4.49108553, -233.529053, -0.631848156, -0.00334048411, 0.775085032, -1.25992265e-05, 0.999990761, 0.00429952005, -0.775092185, 0.00270687975, -0.631842375)
+
+        -- Countdown from 2 minutes 1 second (121 seconds)
+        for i = 121, 1, -1 do
+            local minutes = math.floor(i / 60)
+            local seconds = i % 60
+            local text
+            if minutes > 0 then
+                text = "You wait " .. minutes .. " minute" .. (minutes > 1 and "s" or "") .. " and " .. seconds .. " second" .. (seconds ~= 1 and "s" or "") .. " to receive."
+            else
+                text = "You wait " .. seconds .. " second" .. (seconds ~= 1 and "s" or "") .. " to receive."
+            end
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Wait",
+                Text = text,
+                Icon = "rbxassetid://7733656100",
+                Duration = 1
+            })
+            wait(1)
+        end
+
+        for i, v in pairs(workspace.Maze:GetDescendants()) do
+            if v:IsA("ClickDetector") then
+                fireclickdetector(v)
+            end
+        end
+    ]])
+else
+    warn("[Counter Badge] Your executor does not support queue_on_teleport!")
+end
+
+game:GetService("TeleportService"):Teleport(11828384869)
