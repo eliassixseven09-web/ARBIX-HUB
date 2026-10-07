@@ -1,0 +1,27 @@
+local v1 = unpack or table.unpack
+local LocalPlayer = game.Players.LocalPlayer
+local v3 = game.PlaceId == 6403373529
+if not v3 then
+	v3 = game.PlaceId == 124596094333300
+end
+if v3 then
+	game:GetService("TeleportService"):Teleport(122902713960550, game.Players.LocalPlayer)
+end
+if game.PlaceId ~= 122902713960550 then
+	return
+end
+local v4, _, _ = (function()
+	return LocalPlayer.Character, LocalPlayer.Character.HumanoidRootPart, LocalPlayer.Character.Humanoid
+end)()
+v4:MoveTo(v1({ Vector3.new(-223, 433, 8662) }))
+task.wait(0.3)
+fireproximityprompt(workspace.Island["John Surfboard"].Head.DialoguePrompt)
+game:GetService("ReplicatedStorage").Remotes.ObjectHit:Destroy()
+task.spawn(function()
+	while wait() do
+		local ResondToDialogue = game:GetService("ReplicatedStorage").Modules.Common.Dialogue.Remotes.ResondToDialogue
+
+		ResondToDialogue:FireServer(0)
+		ResondToDialogue:FireServer(1)
+	end
+end)
