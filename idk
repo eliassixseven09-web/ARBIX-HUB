@@ -1,0 +1,1520 @@
+local Wizard
+15:59:56 -- Lib = {}
+WizardLib.__index = WizardLib
+
+local TweenService     = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local RunService       = game:GetService("
+15:59:56 -- RunService")
+
+-- ─── PALETTE ───────────────────────────────────────────────────────
+15:59:56 -- ───────────
+local C = {
+    bg        = Color3.fromRGB(14, 12, 22),
+    surface   = Color3.fromRGB(22, 19, 35),
+    sidebar   = Color3.fromRGB(12, 10, 20),
+    border    = Color3
+15:59:56 -- .fromRGB(45, 38, 70),
+    accent    = Color3.fromRGB(124, 58, 237),
+    accentLt  = Color3.fromRGB(167, 139, 250),
+    accentDim = Color3.fromRGB(60, 30, 110),
+    togOn     = Color3.fromRGB(90, 45, 1
+15:59:56 -- 80),
+    tabActive = Color3.fromRGB(28, 20, 48),
+    ddItem    = Color3.fromRGB(18, 15, 28),
+    ddHover   = Color3.fromRGB(35, 28, 55),
+    text      = Color3.fromRGB(220, 215, 235),
+    muted     = 
+15:59:56 -- Color3.fromRGB(130, 115, 160),
+    label     = Color3.fromRGB(90, 75, 120),
+    knob      = Color3.fromRGB(196, 181, 253),
+    fillTrack = Color3.fromRGB(100, 70, 200),
+    plexNode  = Color3.fromRGB(
+15:59:56 -- 167, 139, 250),
+    plexLine  = Color3.fromRGB(120, 80, 220),
+}
+
+-- ─── TWEEN INFOS ──────────────────────────────────── 
+15:59:56 --  ─────────────────────────
+local TW = {
+    spring = TweenInfo.new(0.28, Enum.EasingStyle.Back,  Enum.EasingDirection.Out),
+    open   = TweenInfo.new
+15:59:56 -- (0.22, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+    close  = TweenInfo.new(0.16, Enum.EasingStyle.Quint, Enum.EasingDirection.In),
+    fast   = TweenInfo.new(0.10, Enum.EasingStyle.Quad,  En
+15:59:56 -- um.EasingDirection.Out),
+    glow   = TweenInfo.new(0.40, Enum.EasingStyle.Sine,  Enum.EasingDirection.InOut),
+}
+
+-- ─── CONSTANTS ─────────────────────
+15:59:56 -- ───────────────────────────────────────────
+local COMPACT_W   = 230
+local WIDE_W      = 440
+local WIDE_TAB    = 96
+15:59:56 -- 
+local WIDE_H      = 280
+local COMPACT_MAX = 320
+local SIDEBAR_W   = 82
+local TITLEBAR_H  = 34
+local TAB_H       = 34
+
+-- Plexus tuning
+local PLEXUS_NODES   = 16
+local PLEXUS_THRESH  = 75   -- px dist
+15:59:56 -- ance to draw a line
+local PLEXUS_SPEED   = 0.35 -- max pixels per frame
+
+-- ─── HELPERS ─────────────────────────────────── 
+15:59:56 --   ──────────────────────────────
+local function tw(obj, props, info)
+    return TweenService:Create(obj, info or TW.open, props)
+end
+
+local 
+15:59:56 -- function corner(p, r)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, r or 6)
+    c.Parent = p
+    return c
+end
+
+local function stroke(p, color, thickness)
+    local s = Instan
+15:59:56 -- ce.new("UIStroke")
+    s.Color     = color     or C.border
+    s.Thickness = thickness or 1
+    s.Parent    = p
+    return s
+end
+
+local function makeLabel(p, text, size, color, zIndex)
+    local l = I
+15:59:56 -- nstance.new("TextLabel")
+    l.BackgroundTransparency = 1
+    l.Text           = text
+    l.TextColor3     = color  or C.text
+    l.TextSize       = size   or 12
+    l.ZIndex         = zIndex or 5
+   
+15:59:56 --  l.Font           = Enum.Font.GothamMedium
+    l.Position       = UDim2.new(0, 0, 0, 0)
+    l.Size           = UDim2.new(1, 0, 1, 0)
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Parent       
+15:59:56 --   = p
+    return l
+end
+
+-- ─── PLEXUS ────────────────────────────────────────────────────
+15:59:56 -- ───────────────
+-- Parented to self._clip which has ClipsDescendants = true.
+-- ZIndex 1 keeps it behind all controls (sidebar/content at ZIndex 4+).
+-- Nodes are tiny Fr
+15:59:56 -- ames; lines are 1px-tall Frames rotated in world space.
+local function buildPlexus(clipFrame)
+    local holder = Instance.new("Frame")
+    holder.Name                   = "Plexus"
+    holder.Backgroun
+15:59:56 -- dTransparency = 1
+    holder.BorderSizePixel        = 0
+    holder.Size                   = UDim2.new(1, 0, 1, 0)
+    holder.Position               = UDim2.new(0, 0, 0, 0)
+    holder.ClipsDescendants 
+15:59:56 --       = false
+    holder.ZIndex                 = 1
+    holder.Parent                 = clipFrame
+
+    -- Seed nodes with normalized [0,1] coords + pixel velocity
+    local nodes = {}
+    for i = 1, P
+15:59:56 -- LEXUS_NODES do
+        local dot = Instance.new("Frame")
+        dot.Size                        = UDim2.new(0, 3, 0, 3)
+        dot.BackgroundColor3            = C.plexNode
+        dot.BackgroundTran
+15:59:56 -- sparency      = 0.25
+        dot.BorderSizePixel             = 0
+        dot.ZIndex                      = 2
+        dot.Position                    = UDim2.new(math.random(), 0, math.random(), 0)
+   
+15:59:56 --      corner(dot, 2)
+        dot.Parent = holder
+
+        nodes[i] = {
+            frame = dot,
+            px    = math.random(),
+            py    = math.random(),
+            vx    = (math.random() 
+15:59:56 -- - 0.5) * PLEXUS_SPEED * 0.012,
+            vy    = (math.random() - 0.5) * PLEXUS_SPEED * 0.012,
+        }
+    end
+
+    -- Pre-build line frames for every unique pair (N*(N-1)/2 total)
+    local lines
+15:59:56 --  = {}
+    for i = 1, PLEXUS_NODES do
+        lines[i] = {}
+        for j = i + 1, PLEXUS_NODES do
+            local line = Instance.new("Frame")
+            line.BorderSizePixel              = 0
+     
+15:59:56 --        line.BackgroundColor3             = C.plexLine
+            line.BackgroundTransparency       = 1
+            line.Size                         = UDim2.new(0, 1, 0, 1)
+            line.AnchorPoi
+15:59:56 -- nt                  = Vector2.new(0, 0.5)
+            line.ZIndex                       = 1
+            line.Parent                       = holder
+            lines[i][j]                       = line
+
+15:59:56 --         end
+    end
+
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        -- Bail if the holder was destroyed (window rebuilt on mode switch)
+        if not holder or not hold
+15:59:56 -- er.Parent then
+            conn:Disconnect()
+            return
+        end
+
+        local W = holder.AbsoluteSize.X
+        local H = holder.AbsoluteSize.Y
+        if W < 10 or H < 10 then return end
+15:59:56 -- 
+
+        -- Move nodes
+        for _, n in ipairs(nodes) do
+            n.px = n.px + n.vx
+            n.py = n.py + n.vy
+            if n.px <= 0 or n.px >= 1 then n.vx = -n.vx; n.px = math.clamp(n.
+15:59:56 -- px, 0, 1) end
+            if n.py <= 0 or n.py >= 1 then n.vy = -n.vy; n.py = math.clamp(n.py, 0, 1) end
+            n.frame.Position = UDim2.new(n.px, -1, n.py, -1)
+        end
+
+        -- Update lin
+15:59:56 -- es
+        for i = 1, PLEXUS_NODES do
+            for j = i + 1, PLEXUS_NODES do
+                local a, b   = nodes[i], nodes[j]
+                local dx     = (a.px - b.px) * W
+                loca
+15:59:56 -- l dy     = (a.py - b.py) * H
+                local dist   = math.sqrt(dx * dx + dy * dy)
+                local line   = lines[i][j]
+
+                if dist < PLEXUS_THRESH then
+                    lo
+15:59:56 -- cal alpha = (1 - dist / PLEXUS_THRESH) * 0.45
+                    local angle = math.deg(math.atan2(dy, dx))
+                    line.BackgroundTransparency = 1 - alpha
+                    line.Size  
+15:59:56 --                  = UDim2.new(0, dist, 0, 1)
+                    line.Position               = UDim2.new(b.px, 1, b.py, 1)
+                    line.Rotation               = angle
+                else
+ 
+15:59:56 --                    line.BackgroundTransparency = 1
+                end
+            end
+        end
+    end)
+
+    return holder
+end
+
+-- ─── CONSTRUCTOR ────────────── 
+15:59:56 --   ───────────────────────────────────────────────
+function WizardLib.new(scriptName, mode)
+    local self 
+15:59:56 --           = setmetatable({}, WizardLib)
+    self._open           = true
+    self._contentHeight  = 0
+    self._tabHeight      = 0
+    self._locked         = false
+    self._tabs           = {}
+    sel
+15:59:56 -- f._activeTab      = nil
+    self._mode           = (mode == "wide") and "wide" or "compact"
+    self._scriptName     = scriptName or "Script"
+    self._wrapper        = nil
+    self._plexusHolder   = 
+15:59:56 -- nil
+
+    local sg = Instance.new("ScreenGui")
+    sg.Name           = "WizardLib"
+    sg.ResetOnSpawn   = false
+    sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    sg.IgnoreGuiInset = true
+    sg.
+15:59:56 -- Parent         = game:GetService("CoreGui")
+    self._sg          = sg
+
+    self:_buildShell()
+    return self
+end
+
+-- ─── SHELL ───────────────────── 
+15:59:56 --  ──────────────────────────────────────────────
+function WizardLib:_buildShell()
+    -- Re-home tabs before 
+15:59:56 -- destroying old wrapper
+    for _, t in ipairs(self._tabs) do
+        t.btn.Parent     = self._sg
+        t.content.Parent = self._sg
+    end
+    if self._wrapper then self._wrapper:Destroy() end
+
+    
+15:59:56 -- local isWide = self._mode == "wide"
+    local W      = isWide and WIDE_W or COMPACT_W
+
+    -- ── Root wrapper (transparent — just a positional anchor) ────────────── 
+15:59:56 --   ─
+    local wrapper = Instance.new("Frame")
+    wrapper.Name                   = "Wrapper"
+    wrapper.BackgroundTransparency = 1
+    wrapper.BorderSizePixel        = 0
+    wrapper.Position       
+15:59:56 --         = UDim2.new(0, 80, 0, 80)
+    wrapper.Size                   = UDim2.new(0, W, 0, TITLEBAR_H)
+    wrapper.Parent                 = self._sg
+    self._wrapper = wrapper
+
+    -- ── Outer amb
+15:59:56 -- ient glow ───────────────────────────────────────────────────
+    local glowFrame = Instance.new("
+15:59:56 -- Frame")
+    glowFrame.Name                        = "GlowAura"
+    glowFrame.BackgroundColor3            = C.accent
+    glowFrame.BackgroundTransparency      = 0.84
+    glowFrame.BorderSizePixel      
+15:59:56 --        = 0
+    glowFrame.Size                        = UDim2.new(1, 8, 1, 8)
+    glowFrame.Position                    = UDim2.new(0, -4, 0, -4)
+    glowFrame.ZIndex                      = 0
+    corne
+15:59:56 -- r(glowFrame, 10)
+    glowFrame.Parent = wrapper
+
+    task.spawn(function()
+        while glowFrame and glowFrame.Parent do
+            tw(glowFrame, {BackgroundTransparency = 0.76}, TW.glow):Play()
+  
+15:59:56 --           task.wait(0.45)
+            tw(glowFrame, {BackgroundTransparency = 0.90}, TW.glow):Play()
+            task.wait(0.45)
+        end
+    end)
+
+    -- ── Main container ────── 
+15:59:56 --  ────────────────────────────────────────────────
+    local main = Instance.new("Frame")
+    main.Name  
+15:59:56 --            = "Main"
+    main.BackgroundColor3 = C.bg
+    main.BorderSizePixel  = 0
+    main.Size             = UDim2.new(1, 0, 1, 0)
+    main.ZIndex           = 2
+    corner(main, 8)
+    stroke(main, 
+15:59:56 -- C.border)
+    main.Parent = wrapper
+    self._main  = main
+
+    -- ── Titlebar ───────────────────────────────────────
+15:59:56 -- ──────────────────────
+    local tb = Instance.new("Frame")
+    tb.Name             = "Titlebar"
+    tb.BackgroundColor3 = C.surface
+    tb.BorderSizePixel 
+15:59:56 --  = 0
+    tb.Size             = UDim2.new(1, 0, 0, TITLEBAR_H)
+    tb.ZIndex           = 5
+    corner(tb, 8)
+    stroke(tb, C.border)
+    tb.Parent      = main
+    self._titlebar = tb
+
+    -- Square-of
+15:59:56 -- f the bottom of titlebar so it doesn't gap with clip
+    local tbFix = Instance.new("Frame")
+    tbFix.BackgroundColor3 = C.surface
+    tbFix.BorderSizePixel  = 0
+    tbFix.Position         = UDim2.ne
+15:59:56 -- w(0, 0, 1, -8)
+    tbFix.Size             = UDim2.new(1, 0, 0, 8)
+    tbFix.ZIndex           = 4
+    tbFix.Parent           = tb
+
+    -- Traffic-light dots
+    local dotColors = {
+        Color3.fromR
+15:59:56 -- GB(255, 95,  87),
+        Color3.fromRGB(255, 189, 46),
+        Color3.fromRGB(40,  200, 64),
+    }
+    for i, col in ipairs(dotColors) do
+        local d = Instance.new("Frame")
+        d.Size       
+15:59:56 --       = UDim2.new(0, 10, 0, 10)
+        d.Position         = UDim2.new(0, 6 + (i - 1) * 14, 0.5, -5)
+        d.BackgroundColor3 = col
+        d.BorderSizePixel  = 0
+        d.ZIndex           = 6
+    
+15:59:56 --     corner(d, 5)
+        d.Parent = tb
+    end
+
+    -- Title text
+    local titleL = Instance.new("TextLabel")
+    titleL.BackgroundTransparency = 1
+    titleL.Text           = self._scriptName
+    ti
+15:59:56 -- tleL.TextColor3     = C.text
+    titleL.TextSize       = 11
+    titleL.Font           = Enum.Font.GothamBold
+    titleL.Position       = UDim2.new(0, 0, 0, 0)
+    titleL.Size           = UDim2.new(1, 
+15:59:56 -- 0, 1, 0)
+    titleL.TextXAlignment = Enum.TextXAlignment.Center
+    titleL.ZIndex         = 6
+    titleL.Parent         = tb
+
+    -- Titlebar buttons (mode toggle + collapse)
+    local function tbBtn(
+15:59:56 -- text, xOff)
+        local b = Instance.new("TextButton")
+        b.BackgroundColor3 = C.bg
+        b.BorderSizePixel  = 0
+        b.Position         = UDim2.new(1, xOff, 0.5, -10)
+        b.Size      
+15:59:56 --        = UDim2.new(0, 22, 0, 20)
+        b.Text             = text
+        b.TextColor3       = C.muted
+        b.TextSize         = 11
+        b.Font             = Enum.Font.GothamBold
+        b.ZInd
+15:59:56 -- ex           = 7
+        corner(b, 5)
+        stroke(b, C.border)
+        b.MouseEnter:Connect(function()
+            tw(b, {BackgroundColor3 = C.accentDim, TextColor3 = C.accentLt}, TW.fast):Play()
+ 
+15:59:56 --        end)
+        b.MouseLeave:Connect(function()
+            tw(b, {BackgroundColor3 = C.bg, TextColor3 = C.muted}, TW.fast):Play()
+        end)
+        b.Parent = tb
+        return b
+    end
+
+    
+15:59:56 -- local modeBtn   = tbBtn(isWide and "◧" or "⊞", -50)
+    local toggleBtn = tbBtn(self._open and "−" or "+", -25)
+    self._modeBtn   = modeBtn
+    self._toggleBtn = toggleBtn
+
+    -- ── Clip 
+15:59:56 -- (clipped body — plexus lives here) ──────────────────────────────
+    local clip = Instance.new("Frame")
+    clip.Name                   =
+15:59:56 --  "Clip"
+    clip.BackgroundColor3       = C.bg
+    clip.BackgroundTransparency = 0.04
+    clip.BorderSizePixel        = 0
+    clip.Position               = UDim2.new(0, 0, 0, TITLEBAR_H)
+    clip.Size
+15:59:56 --                    = UDim2.new(1, 0, 0, 0)
+    clip.ClipsDescendants       = true   -- ← keeps plexus particles inside
+    clip.ZIndex                 = 3
+    corner(clip, 8)
+    clip.Parent = main
+
+15:59:56 --     self._clip  = clip
+
+    -- ── Spawn plexus INSIDE clip ─────────────────────────────────────────────
+ 
+15:59:56 --    self._plexusHolder = buildPlexus(clip)
+
+    -- ── Build layout (compact or wide) ───────────────────────────────────── 
+15:59:56 --   ─
+    if isWide then
+        self:_buildWideLayout()
+    else
+        self:_buildCompactLayout()
+    end
+
+    -- ── Wire buttons ─────────────────────
+15:59:56 -- ────────────────────────────────────
+    toggleBtn.MouseButton1Click:Connect(function()
+        self:_collapse()
+    end)
+
+    m
+15:59:56 -- odeBtn.MouseButton1Click:Connect(function()
+        local oldPos = self._wrapper.Position
+        self._mode   = (self._mode == "wide") and "compact" or "wide"
+        self._open   = true
+        self
+15:59:56 -- :_buildShell()
+        self._wrapper.Position = oldPos
+        for _, t in ipairs(self._tabs) do self:_attachTab(t) end
+        if self._activeTab then
+            self:_openTab(self._activeTab)
+     
+15:59:56 --    elseif #self._tabs > 0 then
+            self:_openTab(self._tabs[1])
+        end
+    end)
+
+    self:_setupDrag()
+
+    -- ── Entrance spring ───────────────── 
+15:59:56 --  ────────────────────────────────────
+    wrapper.Position = UDim2.new(
+        wrapper.Position.X.Scale,
+        wrapper.Positi
+15:59:56 -- on.X.Offset,
+        wrapper.Position.Y.Scale,
+        wrapper.Position.Y.Offset - 12
+    )
+    tw(wrapper, {
+        Position = UDim2.new(
+            wrapper.Position.X.Scale,
+            wrapper.Po
+15:59:56 -- sition.X.Offset,
+            wrapper.Position.Y.Scale,
+            wrapper.Position.Y.Offset + 12
+        )
+    }, TW.spring):Play()
+end
+
+-- ─── COMPACT LAYOUT ─────────── 
+15:59:56 --   ───────────────────────────────────────────────
+function WizardLib:_buildCompactLayout()
+    local clip 
+15:59:56 -- = self._clip
+
+    -- Sidebar (ZIndex 4 — renders in front of plexus at ZIndex 1/2)
+    local sidebar = Instance.new("Frame")
+    sidebar.Name             = "Sidebar"
+    sidebar.BackgroundColor3 = C
+15:59:56 -- olor3.fromRGB(10, 8, 18)
+    sidebar.BackgroundTransparency = 0.1
+    sidebar.BorderSizePixel  = 0
+    sidebar.Size             = UDim2.new(0, SIDEBAR_W, 1, 0)
+    sidebar.ZIndex           = 4
+    cor
+15:59:56 -- ner(sidebar, 6)
+    stroke(sidebar, C.border)
+    sidebar.Parent  = clip
+    self._tabList   = sidebar
+
+    local sideLayout = Instance.new("UIListLayout")
+    sideLayout.Padding             = UDim.ne
+15:59:56 -- w(0, 0)
+    sideLayout.FillDirection       = Enum.FillDirection.Vertical
+    sideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    sideLayout.Parent              = sidebar
+    self._tab
+15:59:56 -- ListLayout            = sideLayout
+
+    sideLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        self._tabHeight = sideLayout.AbsoluteContentSize.Y
+    end)
+
+    -- Conten
+15:59:56 -- t column (right of sidebar, also ZIndex 4+)
+    local contentCol = Instance.new("Frame")
+    contentCol.Name                   = "ContentCol"
+    contentCol.BackgroundTransparency = 1
+    contentCol.B
+15:59:56 -- orderSizePixel        = 0
+    contentCol.Position               = UDim2.new(0, SIDEBAR_W, 0, 0)
+    contentCol.Size                   = UDim2.new(1, -SIDEBAR_W, 1, 0)
+    contentCol.ClipsDescendants  
+15:59:56 --      = true
+    contentCol.ZIndex                 = 4
+    contentCol.Parent                 = clip
+
+    local sf = Instance.new("ScrollingFrame")
+    sf.Name                       = "ContentHolder"
+  
+15:59:56 --   sf.BackgroundTransparency     = 1
+    sf.BorderSizePixel            = 0
+    sf.Size                       = UDim2.new(1, 0, 1, 0)
+    sf.CanvasSize                 = UDim2.new(0, 0, 0, 0)
+    sf.Scr
+15:59:56 -- ollBarThickness         = 3
+    sf.ScrollBarImageColor3       = C.accentLt
+    sf.ScrollingDirection         = Enum.ScrollingDirection.Y
+    sf.ElasticBehavior            = Enum.ElasticBehavior.WhenSc
+15:59:56 -- rollable
+    sf.ClipsDescendants           = true
+    sf.ZIndex                     = 4
+    sf.Parent                     = contentCol
+    self._contentHolder           = sf
+end
+
+-- ─── WIDE LAY
+15:59:56 -- OUT ──────────────────────────────────────────────────────────────
+function 
+15:59:56 -- WizardLib:_buildWideLayout()
+    local clip = self._clip
+
+    local leftPanel = Instance.new("Frame")
+    leftPanel.Name                   = "LeftPanel"
+    leftPanel.BackgroundColor3       = Color3.f
+15:59:56 -- romRGB(10, 8, 18)
+    leftPanel.BackgroundTransparency = 0.1
+    leftPanel.BorderSizePixel        = 0
+    leftPanel.Size                   = UDim2.new(0, WIDE_TAB, 1, 0)
+    leftPanel.ZIndex          
+15:59:56 --        = 4
+    stroke(leftPanel, C.border)
+    leftPanel.Parent = clip
+
+    local tabList = Instance.new("ScrollingFrame")
+    tabList.Name                   = "TabList"
+    tabList.BackgroundTranspar
+15:59:56 -- ency = 1
+    tabList.BorderSizePixel        = 0
+    tabList.Size                   = UDim2.new(1, 0, 1, 0)
+    tabList.CanvasSize             = UDim2.new(0, 0, 0, 0)
+    tabList.ScrollBarThickness    
+15:59:56 --  = 2
+    tabList.ScrollBarImageColor3   = C.accentLt
+    tabList.ScrollingDirection     = Enum.ScrollingDirection.Y
+    tabList.ZIndex                 = 4
+    tabList.Parent                 = leftPane
+15:59:56 -- l
+    self._tabList                  = tabList
+
+    local tabListLayout = Instance.new("UIListLayout")
+    tabListLayout.Padding             = UDim.new(0, 0)
+    tabListLayout.FillDirection       = En
+15:59:56 -- um.FillDirection.Vertical
+    tabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    tabListLayout.Parent              = tabList
+    self._tabListLayout               = tabListLayout
+
+15:59:56 -- 
+    tabListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        self._tabHeight    = tabListLayout.AbsoluteContentSize.Y
+        tabList.CanvasSize = UDim2.new(0, 0, 0, s
+15:59:56 -- elf._tabHeight)
+    end)
+
+    local rightPanel = Instance.new("Frame")
+    rightPanel.Name                   = "RightPanel"
+    rightPanel.BackgroundTransparency = 1
+    rightPanel.BorderSizePixel    
+15:59:56 --     = 0
+    rightPanel.Position               = UDim2.new(0, WIDE_TAB, 0, 0)
+    rightPanel.Size                   = UDim2.new(1, -WIDE_TAB, 1, 0)
+    rightPanel.ClipsDescendants       = true
+    righ
+15:59:56 -- tPanel.ZIndex                 = 4
+    rightPanel.Parent                 = clip
+
+    local sf = Instance.new("ScrollingFrame")
+    sf.Name                   = "ContentHolder"
+    sf.BackgroundTranspare
+15:59:56 -- ncy = 1
+    sf.BorderSizePixel        = 0
+    sf.Size                   = UDim2.new(1, 0, 1, 0)
+    sf.CanvasSize             = UDim2.new(0, 0, 0, 0)
+    sf.ScrollBarThickness     = 3
+    sf.ScrollBar
+15:59:56 -- ImageColor3   = C.accentLt
+    sf.ScrollingDirection     = Enum.ScrollingDirection.Y
+    sf.ClipsDescendants       = true
+    sf.ZIndex                 = 4
+    sf.Parent                 = rightPanel
+ 
+15:59:56 --    self._contentHolder       = sf
+
+    clip.Size           = UDim2.new(1, 0, 0, WIDE_H)
+    self._wrapper.Size  = UDim2.new(0, WIDE_W, 0, TITLEBAR_H + WIDE_H)
+    self._contentHeight = WIDE_H
+end
+
+-- 
+15:59:56 -- ─── TAB ATTACH / OPEN ────────────────────────────────────────────────────────
+fun
+15:59:56 -- ction WizardLib:_attachTab(tabData)
+    tabData.btn.Parent       = self._tabList
+    tabData.content.Visible  = false
+    tabData.content.Size     = UDim2.new(1, 0, 0, tabData.height)
+    tabData.cont
+15:59:56 -- ent.Position = UDim2.new(0, 0, 0, 0)
+    tabData.content.Parent   = self._contentHolder
+end
+
+function WizardLib:_openTab(tabData)
+    for _, t in ipairs(self._tabs) do
+        t.content.Visible = fals
+15:59:56 -- e
+        tw(t.btn, {BackgroundColor3 = C.sidebar}, TW.fast):Play()
+        if t.activeLine then
+            tw(t.activeLine, {BackgroundTransparency = 1}, TW.fast):Play()
+        end
+        if t.tab
+15:59:56 -- Label then
+            tw(t.tabLabel, {TextColor3 = C.muted}, TW.fast):Play()
+        end
+        if t.arrow then
+            t.arrow.Text = "›"
+        end
+    end
+
+    tabData.content.Visible = tr
+15:59:56 -- ue
+    tw(tabData.btn, {BackgroundColor3 = C.tabActive}, TW.fast):Play()
+    if tabData.activeLine then
+        tw(tabData.activeLine, {BackgroundTransparency = 0}, TW.open):Play()
+    end
+    if tabD
+15:59:56 -- ata.tabLabel then
+        tw(tabData.tabLabel, {TextColor3 = C.accentLt}, TW.fast):Play()
+    end
+    if tabData.arrow then
+        tabData.arrow.Text = "‹"
+    end
+
+    self._activeTab = tabData
+  
+15:59:56 --   self._contentHolder.CanvasSize = UDim2.new(0, 0, 0, tabData.height)
+
+    if self._mode == "compact" then
+        self._contentHeight = tabData.height
+        local displayH      = math.min(tabData.h
+15:59:56 -- eight, COMPACT_MAX)
+        tw(self._contentHolder, {Size = UDim2.new(1, 0, 0, displayH)}, TW.open):Play()
+        if self._open then
+            tw(self._clip,    {Size = UDim2.new(1, 0, 0, displayH)
+15:59:56 -- },                        TW.open):Play()
+            tw(self._wrapper, {Size = UDim2.new(0, COMPACT_W, 0, TITLEBAR_H + displayH)},   TW.open):Play()
+        end
+    end
+end
+
+-- ─── COLLAPSE ─
+15:59:56 -- ────────────────────────────────────────────────────────────────
+functio
+15:59:56 -- n WizardLib:_collapse()
+    self._open   = not self._open
+    self._locked = true
+    local isWide = self._mode == "wide"
+    local W      = isWide and WIDE_W or COMPACT_W
+    local h      = isWide an
+15:59:56 -- d WIDE_H or math.min(self._contentHeight, COMPACT_MAX)
+
+    if self._open then
+        self._toggleBtn.Text = "−"
+        tw(self._clip,    {Size = UDim2.new(1, 0, 0, h)},                    TW.open
+15:59:56 -- ):Play()
+        local t = tw(self._wrapper, {Size = UDim2.new(0, W, 0, TITLEBAR_H + h)}, TW.open)
+        t:Play()
+        t.Completed:Connect(function() self._locked = false end)
+    else
+        se
+15:59:56 -- lf._toggleBtn.Text = "+"
+        tw(self._clip,    {Size = UDim2.new(1, 0, 0, 0)},          TW.close):Play()
+        local t = tw(self._wrapper, {Size = UDim2.new(0, W, 0, TITLEBAR_H)}, TW.close)
+    
+15:59:56 --     t:Play()
+        t.Completed:Connect(function() self._locked = false end)
+    end
+end
+
+-- ─── DRAG ────────────────────────────── 
+15:59:56 --   ──────────────────────────────────────
+function WizardLib:_setupDrag()
+    local wrapper  = self._wrapper
+    local titleb
+15:59:56 -- ar = self._titlebar
+    local dragging, dragInput, dragStart, startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        wrapper.Position = UDim2.new(
+        
+15:59:56 --     startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+
+    titlebar.InputBegan:Connect(function(input)
+        if input.UserInp
+15:59:56 -- utType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            dragging  = true
+            dragStart = input.Position
+            startPos  = wr
+15:59:56 -- apper.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+           
+15:59:56 --  end)
+        end
+    end)
+
+    titlebar.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.To
+15:59:56 -- uch then
+            dragInput = input
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then update(input) end
+    end)
+end
+
+-
+15:59:56 -- - ─── TAB ───────────────────────────────────────────────────────────── 
+15:59:56 --   ────────
+function WizardLib:Tab(tabName)
+    local self_lib = self
+
+    -- ── Tab button ───────────────────────────── 
+15:59:56 --  ─────────────────────────────
+    local tabBtn = Instance.new("TextButton")
+    tabBtn.Name             = "Tab_" .. tabName
+    tabBtn.Backgr
+15:59:56 -- oundColor3 = C.sidebar
+    tabBtn.BorderSizePixel  = 0
+    tabBtn.Size             = UDim2.new(1, 0, 0, TAB_H)
+    tabBtn.Text             = ""
+    tabBtn.ZIndex           = 5
+    tabBtn.Parent       
+15:59:56 --     = self._tabList
+
+    -- Left-edge active indicator line
+    local activeLine = Instance.new("Frame")
+    activeLine.BackgroundColor3       = C.accentLt
+    activeLine.BorderSizePixel        = 0
+  
+15:59:56 --   activeLine.Position               = UDim2.new(0, 0, 0.18, 0)
+    activeLine.Size                   = UDim2.new(0, 2, 0.64, 0)
+    activeLine.BackgroundTransparency = 1
+    activeLine.ZIndex         
+15:59:56 --         = 7
+    corner(activeLine, 1)
+    activeLine.Parent = tabBtn
+
+    local tabLabel = Instance.new("TextLabel")
+    tabLabel.BackgroundTransparency = 1
+    tabLabel.Text           = tabName
+    t
+15:59:56 -- abLabel.TextColor3     = C.muted
+    tabLabel.TextSize       = 11
+    tabLabel.Font           = Enum.Font.GothamBold
+    tabLabel.Position       = UDim2.new(0, 10, 0, 0)
+    tabLabel.Size           = 
+15:59:56 -- UDim2.new(1, -24, 1, 0)
+    tabLabel.TextXAlignment = Enum.TextXAlignment.Left
+    tabLabel.ZIndex         = 6
+    tabLabel.Parent         = tabBtn
+
+    local arrow = Instance.new("TextLabel")
+    arr
+15:59:56 -- ow.BackgroundTransparency = 1
+    arrow.Text           = "›"
+    arrow.TextColor3     = C.label
+    arrow.TextSize       = 14
+    arrow.Font           = Enum.Font.GothamBold
+    arrow.Position      
+15:59:56 --  = UDim2.new(1, -18, 0, 0)
+    arrow.Size           = UDim2.new(0, 14, 1, 0)
+    arrow.TextXAlignment = Enum.TextXAlignment.Center
+    arrow.ZIndex         = 6
+    arrow.Parent         = tabBtn
+
+    l
+15:59:56 -- ocal div = Instance.new("Frame")
+    div.BackgroundColor3 = C.border
+    div.BorderSizePixel  = 0
+    div.Position         = UDim2.new(0, 0, 1, -1)
+    div.Size             = UDim2.new(1, 0, 0, 1)
+   
+15:59:56 --  div.ZIndex           = 6
+    div.Parent           = tabBtn
+
+    tabBtn.MouseEnter:Connect(function()
+        if self_lib._activeTab and self_lib._activeTab.btn == tabBtn then return end
+        tw(ta
+15:59:56 -- bBtn,    {BackgroundColor3 = Color3.fromRGB(20, 16, 32)}, TW.fast):Play()
+        tw(tabLabel,  {TextColor3 = C.text},                            TW.fast):Play()
+    end)
+    tabBtn.MouseLeave:Connect
+15:59:56 -- (function()
+        if self_lib._activeTab and self_lib._activeTab.btn == tabBtn then return end
+        tw(tabBtn,   {BackgroundColor3 = C.sidebar}, TW.fast):Play()
+        tw(tabLabel, {TextColor3 =
+15:59:56 --  C.muted},         TW.fast):Play()
+    end)
+
+    -- ── Content frame ────────────────────────────────────────── 
+15:59:56 --   ─────────────
+    local content = Instance.new("Frame")
+    content.Name                   = "Content_" .. tabName
+    content.BackgroundTransparency = 1
+    content.Border
+15:59:56 -- SizePixel        = 0
+    content.Size                   = UDim2.new(1, 0, 0, 0)
+    content.Visible                = false
+    content.ClipsDescendants       = false
+    content.ZIndex                
+15:59:56 --  = 5
+    content.Parent                 = self._contentHolder
+
+    local listLayout = Instance.new("UIListLayout")
+    listLayout.Padding             = UDim.new(0, 4)
+    listLayout.FillDirection     
+15:59:56 --   = Enum.FillDirection.Vertical
+    listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    listLayout.Parent              = content
+
+    local padding = Instance.new("UIPadding")
+    pad
+15:59:56 -- ding.PaddingLeft   = UDim.new(0, 8)
+    padding.PaddingRight  = UDim.new(0, 8)
+    padding.PaddingTop    = UDim.new(0, 6)
+    padding.PaddingBottom = UDim.new(0, 8)
+    padding.Parent        = content
+15:59:56 -- 
+
+    local tabData = {
+        btn        = tabBtn,
+        arrow      = arrow,
+        activeLine = activeLine,
+        tabLabel   = tabLabel,
+        content    = content,
+        layout     = list
+15:59:56 -- Layout,
+        height     = 0,
+        name       = tabName,
+    }
+    table.insert(self._tabs, tabData)
+
+    listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        if 
+15:59:56 -- self_lib._locked then return end
+        local h = listLayout.AbsoluteContentSize.Y + 16
+        tabData.height = h
+        content.Size   = UDim2.new(1, 0, 0, h)
+
+        if self_lib._activeTab == ta
+15:59:56 -- bData then
+            self_lib._contentHolder.CanvasSize = UDim2.new(0, 0, 0, h)
+            if self_lib._mode == "compact" and self_lib._open then
+                self_lib._contentHeight = h
+       
+15:59:56 --          local displayH          = math.min(h, COMPACT_MAX)
+                tw(self_lib._contentHolder, {Size = UDim2.new(1, 0, 0, displayH)},                       TW.open):Play()
+                tw(
+15:59:56 -- self_lib._clip,          {Size = UDim2.new(1, 0, 0, displayH)},                       TW.open):Play()
+                tw(self_lib._wrapper,       {Size = UDim2.new(0, COMPACT_W, 0, TITLEBAR_H + displa
+15:59:56 -- yH)},  TW.open):Play()
+            end
+        end
+    end)
+
+    tabBtn.MouseButton1Click:Connect(function()
+        self_lib:_openTab(tabData)
+    end)
+
+    if #self._tabs == 1 then
+        self:_ope
+15:59:56 -- nTab(tabData)
+    end
+
+    -- ─── ELEMENT API ───────────────────────────────────────────────── 
+15:59:56 --   ───────
+    local tabAPI = {}
+
+    local function row(h)
+        local r = Instance.new("Frame")
+        r.BackgroundTransparency = 1
+        r.BorderSizePixel        = 0
+        r.Siz
+15:59:56 -- e                   = UDim2.new(1, 0, 0, h or 24)
+        r.ZIndex                 = 5
+        r.Parent                 = content
+        return r
+    end
+
+    function tabAPI:Label(text)
+        loca
+15:59:56 -- l r = row(18)
+
+        local l = Instance.new("TextLabel")
+        l.BackgroundTransparency = 1
+        l.Text           = text
+        l.TextColor3     = C.accentLt
+        l.TextSize       = 9
+     
+15:59:56 --    l.Font           = Enum.Font.GothamBold
+        l.Position       = UDim2.new(0, 0, 0, 0)
+        l.Size           = UDim2.new(1, 0, 1, 0)
+        l.TextXAlignment = Enum.TextXAlignment.Left
+       
+15:59:56 --  l.ZIndex         = 6
+        l.Parent         = r
+
+        local underline = Instance.new("Frame")
+        underline.BackgroundColor3       = C.accent
+        underline.BorderSizePixel        = 0
+   
+15:59:56 --      underline.Position               = UDim2.new(0, 0, 1, -1)
+        underline.Size                   = UDim2.new(0.28, 0, 0, 1)
+        underline.BackgroundTransparency = 0.45
+        underline.ZIn
+15:59:56 -- dex                 = 6
+        underline.Parent                 = r
+        return self
+    end
+
+    function tabAPI:Text(text)
+        local r = row(20)
+        local l = Instance.new("TextLabel")
+ 
+15:59:56 --        l.BackgroundTransparency = 1
+        l.Text           = text
+        l.TextColor3     = C.muted
+        l.TextSize       = 11
+        l.Font           = Enum.Font.Gotham
+        l.Position     
+15:59:56 --   = UDim2.new(0, 0, 0, 0)
+        l.Size           = UDim2.new(1, 0, 1, 0)
+        l.TextXAlignment = Enum.TextXAlignment.Left
+        l.TextWrapped    = true
+        l.ZIndex         = 6
+        l.Pa
+15:59:56 -- rent         = r
+        return self
+    end
+
+    function tabAPI:Divider()
+        local r = row(10)
+        local line = Instance.new("Frame")
+        line.BackgroundColor3 = C.border
+        line.B
+15:59:56 -- orderSizePixel  = 0
+        line.Position         = UDim2.new(0, 0, 0.5, 0)
+        line.Size             = UDim2.new(1, 0, 0, 1)
+        line.ZIndex           = 6
+        line.Parent           = r
+  
+15:59:56 --       return self
+    end
+
+    function tabAPI:Toggle(name, default, callback)
+        local state = default or false
+        local r     = row(26)
+
+        local nameL = Instance.new("TextLabel")
+   
+15:59:56 --      nameL.BackgroundTransparency = 1
+        nameL.Text           = name
+        nameL.TextColor3     = C.text
+        nameL.TextSize       = 11
+        nameL.Font           = Enum.Font.GothamMedium
+
+15:59:56 --         nameL.Position       = UDim2.new(0, 0, 0, 0)
+        nameL.Size           = UDim2.new(1, -46, 1, 0)
+        nameL.TextXAlignment = Enum.TextXAlignment.Left
+        nameL.ZIndex         = 6
+   
+15:59:56 --      nameL.Parent         = r
+
+        local track = Instance.new("Frame")
+        track.BackgroundColor3 = state and C.togOn or Color3.fromRGB(38, 32, 58)
+        track.BorderSizePixel  = 0
+        t
+15:59:56 -- rack.Position         = UDim2.new(1, -40, 0.5, -9)
+        track.Size             = UDim2.new(0, 36, 0, 18)
+        track.ZIndex           = 6
+        corner(track, 9)
+        local trackStroke = stro
+15:59:56 -- ke(track, state and C.accent or C.border)
+        track.Parent = r
+
+        local knob = Instance.new("Frame")
+        knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        knob.BorderSizePixe
+15:59:56 -- l  = 0
+        knob.Position         = UDim2.new(0, state and 18 or 2, 0.5, -7)
+        knob.Size             = UDim2.new(0, 14, 0, 14)
+        knob.ZIndex           = 7
+        corner(knob, 7)
+      
+15:59:56 --   knob.Parent = track
+
+        local hitbox = Instance.new("TextButton")
+        hitbox.BackgroundTransparency = 1
+        hitbox.BorderSizePixel        = 0
+        hitbox.Size                   = UDi
+15:59:56 -- m2.new(1, 0, 1, 0)
+        hitbox.Text                   = ""
+        hitbox.ZIndex                 = 8
+        hitbox.Parent                 = track
+
+        hitbox.MouseButton1Click:Connect(function
+15:59:56 -- ()
+            state = not state
+            tw(track, {BackgroundColor3 = state and C.togOn or Color3.fromRGB(38, 32, 58)}, TW.fast):Play()
+            tw(trackStroke, {Color = state and C.accent or 
+15:59:56 -- C.border}, TW.fast):Play()
+            tw(knob, {Position = UDim2.new(0, state and 18 or 2, 0.5, -7)}, TW.spring):Play()
+
+            if state then
+                local flash = Instance.new("Frame")
+
+15:59:56 --                 flash.BackgroundColor3       = C.accentLt
+                flash.BackgroundTransparency = 0.5
+                flash.BorderSizePixel        = 0
+                flash.Size                
+15:59:56 --    = UDim2.new(1, 0, 1, 0)
+                flash.ZIndex                 = 7
+                corner(flash, 9)
+                flash.Parent = track
+                tw(flash, {BackgroundTransparency = 1,
+15:59:56 --  Size = UDim2.new(1.3, 0, 1.5, 0)}, TW.fast):Play()
+                task.delay(0.14, function() flash:Destroy() end)
+            end
+
+            if callback then callback(state) end
+        end)
+    
+15:59:56 --     return self
+    end
+
+    function tabAPI:Slider(name, min, max, default, callback)
+        local val = default or min
+        local r   = row(38)
+
+        local nameL = Instance.new("TextLabel")
+ 
+15:59:56 --        nameL.BackgroundTransparency = 1
+        nameL.Text           = name
+        nameL.TextColor3     = C.text
+        nameL.TextSize       = 11
+        nameL.Font           = Enum.Font.GothamMediu
+15:59:56 -- m
+        nameL.Position       = UDim2.new(0, 0, 0, 0)
+        nameL.Size           = UDim2.new(0.65, 0, 0, 16)
+        nameL.TextXAlignment = Enum.TextXAlignment.Left
+        nameL.ZIndex         = 6
+15:59:56 -- 
+        nameL.Parent         = r
+
+        local valL = Instance.new("TextLabel")
+        valL.BackgroundTransparency = 1
+        valL.Text           = tostring(val)
+        valL.TextColor3     = C.ac
+15:59:56 -- centLt
+        valL.TextSize       = 10
+        valL.Font           = Enum.Font.GothamBold
+        valL.Position       = UDim2.new(0.65, 0, 0, 0)
+        valL.Size           = UDim2.new(0.35, 0, 0, 16
+15:59:56 -- )
+        valL.TextXAlignment = Enum.TextXAlignment.Right
+        valL.ZIndex         = 6
+        valL.Parent         = r
+
+        local trackF = Instance.new("Frame")
+        trackF.BackgroundColor3 
+15:59:56 -- = Color3.fromRGB(35, 28, 55)
+        trackF.BorderSizePixel  = 0
+        trackF.Position         = UDim2.new(0, 0, 0, 22)
+        trackF.Size             = UDim2.new(1, 0, 0, 5)
+        trackF.ZIndex 
+15:59:56 --           = 6
+        corner(trackF, 3)
+        trackF.Parent = r
+
+        local fillF = Instance.new("Frame")
+        fillF.BackgroundColor3 = C.fillTrack
+        fillF.BorderSizePixel  = 0
+        f
+15:59:56 -- illF.Size             = UDim2.new((val - min) / (max - min), 0, 1, 0)
+        fillF.ZIndex           = 7
+        corner(fillF, 3)
+        fillF.Parent = trackF
+
+        local knobF = Instance.new("Fra
+15:59:56 -- me")
+        knobF.BackgroundColor3 = C.knob
+        knobF.BorderSizePixel  = 0
+        knobF.Size             = UDim2.new(0, 14, 0, 14)
+        knobF.Position         = UDim2.new((val - min) / (max -
+15:59:56 --  min), -7, 0.5, -7)
+        knobF.ZIndex           = 8
+        corner(knobF, 7)
+        stroke(knobF, C.accent)
+        knobF.Parent = trackF
+
+        local knobBtn = Instance.new("TextButton")
+      
+15:59:56 --   knobBtn.BackgroundTransparency = 1
+        knobBtn.BorderSizePixel        = 0
+        knobBtn.Size                   = UDim2.new(0, 22, 0, 22)
+        knobBtn.Position               = UDim2.new(0, -
+15:59:56 -- 4, 0.5, -11)
+        knobBtn.Text                   = ""
+        knobBtn.ZIndex                 = 9
+        knobBtn.Parent                 = knobF
+
+        local sliding = false
+
+        local functio
+15:59:56 -- n setVal(input)
+            local rel = math.clamp(
+                (input.Position.X - trackF.AbsolutePosition.X) / trackF.AbsoluteSize.X, 0, 1
+            )
+            val = math.floor(min + (max -
+15:59:56 --  min) * rel)
+            valL.Text = tostring(val)
+            fillF.Size     = UDim2.new(rel, 0, 1, 0)
+            knobF.Position = UDim2.new(rel, -7, 0.5, -7)
+            if callback then callback(v
+15:59:56 -- al) end
+        end
+
+        knobBtn.InputBegan:Connect(function(i)
+            if i.UserInputType == Enum.UserInputType.MouseButton1
+            or i.UserInputType == Enum.UserInputType.Touch then
+  
+15:59:56 --               sliding = true
+                tw(knobF, {Size = UDim2.new(0, 16, 0, 16)}, TW.spring):Play()
+            end
+        end)
+        UserInputService.InputChanged:Connect(function(i)
+      
+15:59:56 --       if sliding and (
+                i.UserInputType == Enum.UserInputType.MouseMovement or
+                i.UserInputType == Enum.UserInputType.Touch
+            ) then setVal(i) end
+        end)
+
+15:59:56 --         UserInputService.InputEnded:Connect(function(i)
+            if i.UserInputType == Enum.UserInputType.MouseButton1
+            or i.UserInputType == Enum.UserInputType.Touch then
+              
+15:59:56 --   sliding = false
+                tw(knobF, {Size = UDim2.new(0, 14, 0, 14)}, TW.spring):Play()
+            end
+        end)
+        trackF.InputBegan:Connect(function(i)
+            if i.UserInputTyp
+15:59:56 -- e == Enum.UserInputType.MouseButton1
+            or i.UserInputType == Enum.UserInputType.Touch then setVal(i) end
+        end)
+        return self
+    end
+
+    function tabAPI:TextBox(name, placehold
+15:59:56 -- er, callback)
+        local r = row(46)
+
+        local nameL = Instance.new("TextLabel")
+        nameL.BackgroundTransparency = 1
+        nameL.Text           = name
+        nameL.TextColor3     = C.m
+15:59:56 -- uted
+        nameL.TextSize       = 9
+        nameL.Font           = Enum.Font.GothamBold
+        nameL.Position       = UDim2.new(0, 0, 0, 0)
+        nameL.Size           = UDim2.new(1, 0, 0, 14)
+   
+15:59:56 --      nameL.TextXAlignment = Enum.TextXAlignment.Left
+        nameL.ZIndex         = 6
+        nameL.Parent         = r
+
+        local box = Instance.new("TextBox")
+        box.BackgroundColor3  = Colo
+15:59:56 -- r3.fromRGB(20, 16, 32)
+        box.BorderSizePixel   = 0
+        box.PlaceholderText   = placeholder or "Enter value..."
+        box.PlaceholderColor3 = C.label
+        box.Text              = ""
+    
+15:59:56 --     box.TextColor3        = C.text
+        box.TextSize          = 11
+        box.Font              = Enum.Font.Gotham
+        box.Position          = UDim2.new(0, 0, 0, 18)
+        box.Size          
+15:59:56 --     = UDim2.new(1, 0, 0, 24)
+        box.ClearTextOnFocus  = false
+        box.ZIndex            = 6
+        corner(box, 5)
+        local boxStroke = stroke(box, C.border)
+        box.Parent = r
+
+    
+15:59:56 --     local pad = Instance.new("UIPadding")
+        pad.PaddingLeft = UDim.new(0, 7)
+        pad.Parent      = box
+
+        box.Focused:Connect(function()
+            tw(boxStroke, {Color = C.accentLt},
+15:59:56 --  TW.fast):Play()
+            tw(box, {BackgroundColor3 = Color3.fromRGB(26, 20, 44)}, TW.fast):Play()
+        end)
+        box.FocusLost:Connect(function(enter)
+            tw(boxStroke, {Color = C.bo
+15:59:56 -- rder}, TW.fast):Play()
+            tw(box, {BackgroundColor3 = Color3.fromRGB(20, 16, 32)}, TW.fast):Play()
+            if callback then callback(box.Text, enter) end
+        end)
+        return self
+
+15:59:56 --     end
+
+    function tabAPI:Button(name, callback, isPrimary)
+        local r = row(28)
+
+        local btn = Instance.new("TextButton")
+        btn.BackgroundColor3 = isPrimary and C.accent or Color3
+15:59:56 -- .fromRGB(28, 22, 46)
+        btn.BorderSizePixel  = 0
+        btn.Text             = name
+        btn.TextColor3       = isPrimary and Color3.fromRGB(255, 255, 255) or C.text
+        btn.TextSize     
+15:59:56 --     = 11
+        btn.Font             = Enum.Font.GothamBold
+        btn.Size             = UDim2.new(1, 0, 1, 0)
+        btn.ZIndex           = 6
+        corner(btn, 5)
+        stroke(btn, isPrimary 
+15:59:56 -- and C.accent or C.border)
+        btn.Parent = r
+
+        btn.MouseEnter:Connect(function()
+            tw(btn, {
+                BackgroundColor3 = isPrimary and C.accentLt or Color3.fromRGB(38, 28, 
+15:59:56 -- 62)
+            }, TW.fast):Play()
+        end)
+        btn.MouseLeave:Connect(function()
+            tw(btn, {
+                BackgroundColor3 = isPrimary and C.accent or Color3.fromRGB(28, 22, 46)
+
+15:59:56 --             }, TW.fast):Play()
+        end)
+        btn.MouseButton1Down:Connect(function()
+            tw(btn, {Size = UDim2.new(0.97, 0, 0.94, 0)}, TW.fast):Play()
+        end)
+        btn.MouseButt
+15:59:56 -- on1Up:Connect(function()
+            tw(btn, {Size = UDim2.new(1, 0, 1, 0)}, TW.spring):Play()
+        end)
+        btn.MouseButton1Click:Connect(function()
+            if callback then callback() end
+15:59:56 -- 
+        end)
+        return self
+    end
+
+    function tabAPI:PrimaryButton(name, callback)
+        return tabAPI:Button(name, callback, true)
+    end
+
+    function tabAPI:Dropdown(name, options, def
+15:59:56 -- ault, callback)
+        local selected = default or options[1] or ""
+        local ddOpen   = false
+        local ITEM_H   = 22
+        local HEAD_H   = 28
+
+        local outer = Instance.new("Frame")
+15:59:56 -- 
+        outer.Name                   = "DD_" .. name
+        outer.BackgroundTransparency = 1
+        outer.BorderSizePixel        = 0
+        outer.Size                   = UDim2.new(1, 0, 0, HEAD_H
+15:59:56 -- )
+        outer.ClipsDescendants       = false
+        outer.ZIndex                 = 10
+        outer.Parent                 = content
+
+        local outerLayout = Instance.new("UIListLayout")
+      
+15:59:56 --   outerLayout.Padding       = UDim.new(0, 0)
+        outerLayout.FillDirection = Enum.FillDirection.Vertical
+        outerLayout.Parent        = outer
+
+        local head = Instance.new("TextButton")
+
+15:59:56 --         head.BackgroundColor3 = Color3.fromRGB(22, 17, 36)
+        head.BorderSizePixel  = 0
+        head.Text             = ""
+        head.Size             = UDim2.new(1, 0, 0, HEAD_H)
+        head.
+15:59:56 -- ZIndex           = 11
+        corner(head, 5)
+        stroke(head, C.border)
+        head.Parent = outer
+
+        local ddNameL = Instance.new("TextLabel")
+        ddNameL.BackgroundTransparency = 1
+ 
+15:59:56 --        ddNameL.Text           = name
+        ddNameL.TextColor3     = C.muted
+        ddNameL.TextSize       = 9
+        ddNameL.Font           = Enum.Font.GothamBold
+        ddNameL.Position       = 
+15:59:56 -- UDim2.new(0, 8, 0, 0)
+        ddNameL.Size           = UDim2.new(0.4, 0, 1, 0)
+        ddNameL.TextXAlignment = Enum.TextXAlignment.Left
+        ddNameL.ZIndex         = 12
+        ddNameL.Parent     
+15:59:56 --     = head
+
+        local selL = Instance.new("TextLabel")
+        selL.BackgroundTransparency = 1
+        selL.Text           = selected
+        selL.TextColor3     = C.text
+        selL.TextSize    
+15:59:56 --    = 11
+        selL.Font           = Enum.Font.Gotham
+        selL.Position       = UDim2.new(0.4, 0, 0, 0)
+        selL.Size           = UDim2.new(0.5, 0, 1, 0)
+        selL.TextXAlignment = Enum.Te
+15:59:56 -- xtXAlignment.Right
+        selL.ZIndex         = 12
+        selL.Parent         = head
+
+        local chevron = Instance.new("TextLabel")
+        chevron.BackgroundTransparency = 1
+        chevron.Tex
+15:59:56 -- t           = "▼"
+        chevron.TextColor3     = C.accentLt
+        chevron.TextSize       = 9
+        chevron.Font           = Enum.Font.GothamBold
+        chevron.Position       = UDim2.new(1, -
+15:59:56 -- 20, 0, 0)
+        chevron.Size           = UDim2.new(0, 16, 1, 0)
+        chevron.TextXAlignment = Enum.TextXAlignment.Center
+        chevron.ZIndex         = 12
+        chevron.Parent         = head
+
+15:59:56 -- 
+        local fullH = #options * ITEM_H
+
+        local list = Instance.new("Frame")
+        list.Name             = "List"
+        list.BackgroundColor3 = C.ddItem
+        list.BorderSizePixel  = 0
+ 
+15:59:56 --        list.Size             = UDim2.new(1, 0, 0, 0)
+        list.ClipsDescendants = true
+        list.ZIndex           = 13
+        corner(list, 5)
+        stroke(list, C.border)
+        list.Parent 
+15:59:56 -- = outer
+
+        local ll = Instance.new("UIListLayout")
+        ll.Padding             = UDim.new(0, 0)
+        ll.FillDirection       = Enum.FillDirection.Vertical
+        ll.HorizontalAlignment = E
+15:59:56 -- num.HorizontalAlignment.Center
+        ll.Parent              = list
+
+        for _, opt in ipairs(options) do
+            local item = Instance.new("TextButton")
+            item.BackgroundColor3 = C
+15:59:56 -- .ddItem
+            item.BorderSizePixel  = 0
+            item.Text             = ""
+            item.Size             = UDim2.new(1, 0, 0, ITEM_H)
+            item.ZIndex           = 14
+            i
+15:59:56 -- tem.Parent           = list
+
+            local itemL = Instance.new("TextLabel")
+            itemL.BackgroundTransparency = 1
+            itemL.Text           = opt
+            itemL.TextColor3     = 
+15:59:56 -- (opt == selected) and C.accentLt or C.text
+            itemL.TextSize       = 11
+            itemL.Font           = Enum.Font.Gotham
+            itemL.Position       = UDim2.new(0, 10, 0, 0)
+         
+15:59:56 --    itemL.Size           = UDim2.new(1, -10, 1, 0)
+            itemL.TextXAlignment = Enum.TextXAlignment.Left
+            itemL.ZIndex         = 15
+            itemL.Parent         = item
+
+           
+15:59:56 --  local itemDiv = Instance.new("Frame")
+            itemDiv.BackgroundColor3 = C.border
+            itemDiv.BorderSizePixel  = 0
+            itemDiv.Position         = UDim2.new(0, 0, 1, -1)
+          
+15:59:56 --   itemDiv.Size             = UDim2.new(1, 0, 0, 1)
+            itemDiv.ZIndex           = 14
+            itemDiv.Parent           = item
+
+            item.MouseEnter:Connect(function()
+               
+15:59:56 --  tw(item, {BackgroundColor3 = C.ddHover}, TW.fast):Play()
+            end)
+            item.MouseLeave:Connect(function()
+                tw(item, {BackgroundColor3 = C.ddItem}, TW.fast):Play()
+      
+15:59:56 --       end)
+            item.MouseButton1Click:Connect(function()
+                selected     = opt
+                selL.Text    = opt
+                ddOpen       = false
+                chevron.Text
+15:59:56 --  = "▼"
+                tw(list, {Size = UDim2.new(1, 0, 0, 0)}, TW.close):Play()
+                outer.Size   = UDim2.new(1, 0, 0, HEAD_H)
+                if callback then callback(opt) end
+        
+15:59:56 --     end)
+        end
+
+        head.MouseButton1Click:Connect(function()
+            ddOpen = not ddOpen
+            if ddOpen then
+                chevron.Text = "▲"
+                outer.Size   = U
+15:59:56 -- Dim2.new(1, 0, 0, HEAD_H + fullH)
+                tw(list, {Size = UDim2.new(1, 0, 0, fullH)}, TW.open):Play()
+                tw(head, {BackgroundColor3 = Color3.fromRGB(28, 20, 46)}, TW.fast):Play()
+15:59:56 -- 
+            else
+                chevron.Text = "▼"
+                tw(list, {Size = UDim2.new(1, 0, 0, 0)}, TW.close):Play()
+                outer.Size   = UDim2.new(1, 0, 0, HEAD_H)
+             
+15:59:56 --    tw(head, {BackgroundColor3 = Color3.fromRGB(22, 17, 36)}, TW.fast):Play()
+            end
+        end)
+
+        return self
+    end
+
+    return tabAPI
+end
+
+return WizardLib
+
+15:59:56 -- ------------------------ END -------------------------------
+15:59:56 -- ============================================================
+15:59:56 -- [Chez Logger] Captured layer 7! Total layers: 7
